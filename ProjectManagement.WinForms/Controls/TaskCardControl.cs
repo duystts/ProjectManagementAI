@@ -5,8 +5,12 @@ namespace ProjectManagement.WinForms.Controls
     public partial class TaskCardControl : UserControl
     {
         public event Action<int>? OnTaskClicked;
+        public event Action<int>? OnEditTask;
+        public event Action<int>? OnDeleteTask;
         
         private ProjectTaskDto? _taskData;
+        
+        [System.ComponentModel.DesignerSerializationVisibility(System.ComponentModel.DesignerSerializationVisibility.Hidden)]
         public ProjectTaskDto? TaskData
         {
             get => _taskData;
@@ -23,8 +27,21 @@ namespace ProjectManagement.WinForms.Controls
             InitializeComponent();
         }
 
+        private void BtnEdit_Click(object? sender, EventArgs e)
+        {
+            if (_taskData != null)
+                OnEditTask?.Invoke(_taskData.Id);
+        }
+
+        private void BtnDelete_Click(object? sender, EventArgs e)
+        {
+            if (_taskData != null)
+                OnDeleteTask?.Invoke(_taskData.Id);
+        }
+
         public void SetData(ProjectTaskDto task)
         {
+            _taskData = task;
             lblTitle.Text = task.Title;
             lblId.Text = $"#{task.Id}";
             lblPriority.Text = task.Priority.ToString();
@@ -44,13 +61,13 @@ namespace ProjectManagement.WinForms.Controls
             }
         }
 
-        private void TaskCardControl_Click(object sender, EventArgs e)
+        private void TaskCardControl_Click(object? sender, EventArgs e)
         {
             if (_taskData != null)
                 OnTaskClicked?.Invoke(_taskData.Id);
         }
 
-        private void Label_Click(object sender, EventArgs e)
+        private void Label_Click(object? sender, EventArgs e)
         {
             TaskCardControl_Click(sender, e);
         }

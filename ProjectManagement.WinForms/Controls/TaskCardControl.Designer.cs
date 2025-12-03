@@ -6,6 +6,8 @@ namespace ProjectManagement.WinForms.Controls
         private Label lblTitle;
         private Label lblPriority;
         private Label lblId;
+        private Button btnEdit;
+        private Button btnDelete;
 
         protected override void Dispose(bool disposing)
         {
@@ -21,6 +23,8 @@ namespace ProjectManagement.WinForms.Controls
             lblTitle = new Label();
             lblPriority = new Label();
             lblId = new Label();
+            btnEdit = new Button();
+            btnDelete = new Button();
             SuspendLayout();
             
             // TaskCardControl
@@ -63,9 +67,29 @@ namespace ProjectManagement.WinForms.Controls
             lblId.Text = "#1";
             lblId.Click += Label_Click;
             
+            // btnEdit
+            btnEdit.Location = new Point(160, 75);
+            btnEdit.Name = "btnEdit";
+            btnEdit.Size = new Size(40, 20);
+            btnEdit.TabIndex = 3;
+            btnEdit.Text = "Edit";
+            btnEdit.UseVisualStyleBackColor = true;
+            btnEdit.Click += BtnEdit_Click;
+            
+            // btnDelete
+            btnDelete.Location = new Point(205, 75);
+            btnDelete.Name = "btnDelete";
+            btnDelete.Size = new Size(40, 20);
+            btnDelete.TabIndex = 4;
+            btnDelete.Text = "Del";
+            btnDelete.UseVisualStyleBackColor = true;
+            btnDelete.Click += BtnDelete_Click;
+            
             Controls.Add(lblTitle);
             Controls.Add(lblPriority);
             Controls.Add(lblId);
+            Controls.Add(btnEdit);
+            Controls.Add(btnDelete);
             ResumeLayout(false);
             PerformLayout();
         }

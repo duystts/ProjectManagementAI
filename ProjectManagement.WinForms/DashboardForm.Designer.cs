@@ -3,6 +3,8 @@ namespace ProjectManagement.WinForms
     partial class DashboardForm
     {
         private System.ComponentModel.IContainer components = null;
+        private FlowLayoutPanel flpProjects;
+        private Button btnAddProject;
 
         protected override void Dispose(bool disposing)
         {

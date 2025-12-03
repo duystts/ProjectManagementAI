@@ -1,16 +1,13 @@
-﻿namespace ProjectManagement.WinForms
+namespace ProjectManagement.WinForms
 {
     partial class Form1
     {
-        /// <summary>
-        ///  Required designer variable.
-        /// </summary>
         private System.ComponentModel.IContainer components = null;
+        private TableLayoutPanel tableLayoutPanel;
+        private FlowLayoutPanel flpTodo, flpProgress, flpDone;
+        private Button btnAddTask;
+        private Button btnBack;
 
-        /// <summary>
-        ///  Clean up any resources being used.
-        /// </summary>
-        /// <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
         protected override void Dispose(bool disposing)
         {
             if (disposing)
@@ -24,18 +21,14 @@
             base.Dispose(disposing);
         }
 
-        #region Windows Form Designer generated code
-
-        /// <summary>
-        ///  Required method for Designer support - do not modify
-        ///  the contents of this method with the code editor.
-        /// </summary>
         private void InitializeComponent()
         {
             tableLayoutPanel = new TableLayoutPanel();
             flpTodo = new FlowLayoutPanel();
             flpProgress = new FlowLayoutPanel();
             flpDone = new FlowLayoutPanel();
+            btnAddTask = new Button();
+            btnBack = new Button();
             
             var lblTodo = new Label();
             var lblProgress = new Label();
@@ -48,7 +41,8 @@
             tableLayoutPanel.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 33.33F));
             tableLayoutPanel.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 33.33F));
             tableLayoutPanel.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 33.34F));
-            tableLayoutPanel.Dock = DockStyle.Fill;
+            tableLayoutPanel.Location = new Point(0, 50);
+            tableLayoutPanel.Size = new Size(1000, 550);
             tableLayoutPanel.RowCount = 2;
             tableLayoutPanel.RowStyles.Add(new RowStyle(SizeType.Absolute, 40F));
             tableLayoutPanel.RowStyles.Add(new RowStyle(SizeType.Percent, 100F));
@@ -99,10 +93,30 @@
             tableLayoutPanel.Controls.Add(flpProgress, 1, 1);
             tableLayoutPanel.Controls.Add(flpDone, 2, 1);
             
+            // btnAddTask
+            btnAddTask.Location = new Point(12, 12);
+            btnAddTask.Name = "btnAddTask";
+            btnAddTask.Size = new Size(100, 30);
+            btnAddTask.TabIndex = 0;
+            btnAddTask.Text = "Add Task";
+            btnAddTask.UseVisualStyleBackColor = true;
+            btnAddTask.Click += new EventHandler(btnAddTask_Click);
+            
+            // btnBack
+            btnBack.Location = new Point(120, 12);
+            btnBack.Name = "btnBack";
+            btnBack.Size = new Size(100, 30);
+            btnBack.TabIndex = 1;
+            btnBack.Text = "Back";
+            btnBack.UseVisualStyleBackColor = true;
+            btnBack.Click += new EventHandler(btnBack_Click);
+            
             // Form1
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(1000, 600);
+            Controls.Add(btnAddTask);
+            Controls.Add(btnBack);
             Controls.Add(tableLayoutPanel);
             Name = "Form1";
             Text = "Project Management - Kanban Board";
@@ -110,7 +124,5 @@
             
             ResumeLayout(false);
         }
-
-        #endregion
     }
 }
