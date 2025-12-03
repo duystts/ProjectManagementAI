@@ -1,4 +1,5 @@
 using ProjectManagement.WinForms.Models;
+using System.ComponentModel;
 
 namespace ProjectManagement.WinForms.Controls
 {
@@ -7,6 +8,7 @@ namespace ProjectManagement.WinForms.Controls
         public event Action<int>? OnProjectClicked;
         
         private ProjectDto? _projectData;
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public ProjectDto? ProjectData
         {
             get => _projectData;
