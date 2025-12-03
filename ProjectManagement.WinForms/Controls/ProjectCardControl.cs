@@ -1,4 +1,5 @@
 using ProjectManagement.WinForms.Models;
+using System.ComponentModel;
 
 namespace ProjectManagement.WinForms.Controls
 {
@@ -9,8 +10,12 @@ namespace ProjectManagement.WinForms.Controls
         public event Action<int>? OnDeleteProject;
         
         private ProjectDto? _projectData;
+ Ngoccode
         
         [System.ComponentModel.DesignerSerializationVisibility(System.ComponentModel.DesignerSerializationVisibility.Hidden)]
+
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+ main
         public ProjectDto? ProjectData
         {
             get => _projectData;
