@@ -42,8 +42,8 @@ dotnet run
 - ✅ Xem danh sách projects
 - ✅ Xem tasks theo project (Kanban board)
 - ✅ Click events cho project và task cards
-- 🔄 Thêm/sửa/xóa project (đang phát triển)
-- 🔄 Thêm/sửa/xóa task (đang phát triển)
+- ✅ Thêm/sửa/xóa project (đang phát triển)
+- ✅ Thêm/sửa/xóa task (đang phát triển)
 
 ## 🔧 Công nghệ
 
