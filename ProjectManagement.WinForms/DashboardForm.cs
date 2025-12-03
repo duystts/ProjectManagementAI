@@ -7,8 +7,6 @@ namespace ProjectManagement.WinForms
     public partial class DashboardForm : Form
     {
         private ApiService _apiService;
-        private FlowLayoutPanel flpProjects;
-        private Button btnAddProject;
 
         public DashboardForm()
         {
@@ -34,6 +32,8 @@ namespace ProjectManagement.WinForms
                     var projectCard = new ProjectCardControl();
                     projectCard.SetData(project);
                     projectCard.OnProjectClicked += ProjectCard_OnProjectClicked;
+                    projectCard.OnEditProject += ProjectCard_OnEditProject;
+                    projectCard.OnDeleteProject += ProjectCard_OnDeleteProject;
                     projectCard.Margin = new Padding(5);
                     flpProjects.Controls.Add(projectCard);
                 }
@@ -66,9 +66,59 @@ namespace ProjectManagement.WinForms
             }
         }
 
-        private void btnAddProject_Click(object sender, EventArgs e)
+        private async void btnAddProject_Click(object sender, EventArgs e)
         {
-            MessageBox.Show("Add Project functionality not implemented yet.", "Info", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            var projectForm = new ProjectForm();
+            if (projectForm.ShowDialog() == DialogResult.OK)
+            {
+                await LoadProjects();
+            }
+        }
+
+        private async void ProjectCard_OnEditProject(int projectId)
+        {
+            try
+            {
+                var projects = await _apiService.GetProjectsAsync();
+                var project = projects.FirstOrDefault(p => p.Id == projectId);
+                if (project != null)
+                {
+                    var projectForm = new ProjectForm(project);
+                    if (projectForm.ShowDialog() == DialogResult.OK)
+                    {
+                        await LoadProjects();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error editing project: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private async void ProjectCard_OnDeleteProject(int projectId)
+        {
+            var result = MessageBox.Show("Are you sure you want to delete this project?", "Confirm Delete", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+            if (result == DialogResult.Yes)
+            {
+                try
+                {
+                    var success = await _apiService.DeleteProjectAsync(projectId);
+                    if (success)
+                    {
+                        MessageBox.Show("Project deleted successfully!", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                        await LoadProjects();
+                    }
+                    else
+                    {
+                        MessageBox.Show("Failed to delete project.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Error deleting project: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+            }
         }
 
 

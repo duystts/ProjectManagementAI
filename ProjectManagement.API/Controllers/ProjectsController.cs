@@ -43,5 +43,34 @@ namespace ProjectManagement.API.Controllers
 
             return project;
         }
+
+        [HttpPut("{id}")]
+        public async Task<IActionResult> UpdateProject(int id, Project project)
+        {
+            if (id != project.Id)
+                return BadRequest();
+
+            var existingProject = await _context.Projects.FindAsync(id);
+            if (existingProject == null)
+                return NotFound();
+
+            existingProject.Name = project.Name;
+            existingProject.Description = project.Description;
+
+            await _context.SaveChangesAsync();
+            return NoContent();
+        }
+
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteProject(int id)
+        {
+            var project = await _context.Projects.FindAsync(id);
+            if (project == null)
+                return NotFound();
+
+            _context.Projects.Remove(project);
+            await _context.SaveChangesAsync();
+            return NoContent();
+        }
     }
 }

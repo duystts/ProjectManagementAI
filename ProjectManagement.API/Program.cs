@@ -23,8 +23,14 @@ using (var scope = app.Services.CreateScope())
     var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
     try
     {
+        // Delete and recreate database to ensure fresh data
+        await context.Database.EnsureDeletedAsync();
         await context.Database.EnsureCreatedAsync();
-        app.Logger.LogInformation("✅ Database created/connected: {ConnectionString}", 
+        
+        // Seed sample data
+        SeedData.Initialize(context);
+        
+        app.Logger.LogInformation("✅ Database recreated with fresh sample data: {ConnectionString}", 
             builder.Configuration.GetConnectionString("DefaultConnection"));
     }
     catch (Exception ex)

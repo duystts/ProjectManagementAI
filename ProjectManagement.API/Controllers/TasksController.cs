@@ -59,6 +59,34 @@ namespace ProjectManagement.API.Controllers
             return NoContent();
         }
 
+        [HttpPut("{id}")]
+        public async Task<IActionResult> UpdateTask(int id, UpdateTaskRequest request)
+        {
+            var task = await _context.ProjectTasks.FindAsync(id);
+            if (task == null)
+                return NotFound();
+
+            task.Title = request.Title;
+            task.Description = request.Description;
+            task.Priority = request.Priority;
+            task.Status = request.Status;
+
+            await _context.SaveChangesAsync();
+            return NoContent();
+        }
+
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteTask(int id)
+        {
+            var task = await _context.ProjectTasks.FindAsync(id);
+            if (task == null)
+                return NotFound();
+
+            _context.ProjectTasks.Remove(task);
+            await _context.SaveChangesAsync();
+            return NoContent();
+        }
+
         [HttpPost("{id}/comments")]
         public async Task<ActionResult<TaskComment>> AddComment(int id, AddCommentRequest request)
         {
@@ -90,6 +118,14 @@ namespace ProjectManagement.API.Controllers
 
     public class UpdateStatusRequest
     {
+        public Models.Enums.TaskStatus Status { get; set; }
+    }
+
+    public class UpdateTaskRequest
+    {
+        public string Title { get; set; } = string.Empty;
+        public string Description { get; set; } = string.Empty;
+        public TaskPriority Priority { get; set; }
         public Models.Enums.TaskStatus Status { get; set; }
     }
 

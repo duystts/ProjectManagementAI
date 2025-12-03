@@ -6,9 +6,16 @@ namespace ProjectManagement.WinForms.Controls
     public partial class ProjectCardControl : UserControl
     {
         public event Action<int>? OnProjectClicked;
+        public event Action<int>? OnEditProject;
+        public event Action<int>? OnDeleteProject;
         
         private ProjectDto? _projectData;
+ Ngoccode
+        
+        [System.ComponentModel.DesignerSerializationVisibility(System.ComponentModel.DesignerSerializationVisibility.Hidden)]
+
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+ main
         public ProjectDto? ProjectData
         {
             get => _projectData;
@@ -29,6 +36,22 @@ namespace ProjectManagement.WinForms.Controls
             lblName.Click += ProjectCardControl_Click;
             lblDescription.Click += ProjectCardControl_Click;
             lblCreated.Click += ProjectCardControl_Click;
+            
+            // Đăng ký events cho buttons
+            btnEdit.Click += BtnEdit_Click;
+            btnDelete.Click += BtnDelete_Click;
+        }
+
+        private void BtnEdit_Click(object? sender, EventArgs e)
+        {
+            if (_projectData != null)
+                OnEditProject?.Invoke(_projectData.Id);
+        }
+
+        private void BtnDelete_Click(object? sender, EventArgs e)
+        {
+            if (_projectData != null)
+                OnDeleteProject?.Invoke(_projectData.Id);
         }
 
         public void SetData(ProjectDto project)
@@ -39,7 +62,7 @@ namespace ProjectManagement.WinForms.Controls
             lblCreated.Text = project.CreatedAt.ToString("dd/MM/yyyy");
         }
 
-        private void ProjectCardControl_Click(object sender, EventArgs e)
+        private void ProjectCardControl_Click(object? sender, EventArgs e)
         {
             if (_projectData != null)
                 OnProjectClicked?.Invoke(_projectData.Id);

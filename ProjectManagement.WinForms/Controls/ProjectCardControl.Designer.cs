@@ -6,6 +6,8 @@ namespace ProjectManagement.WinForms.Controls
         private Label lblName;
         private Label lblDescription;
         private Label lblCreated;
+        private Button btnEdit;
+        private Button btnDelete;
 
         protected override void Dispose(bool disposing)
         {
@@ -21,6 +23,8 @@ namespace ProjectManagement.WinForms.Controls
             lblName = new Label();
             lblDescription = new Label();
             lblCreated = new Label();
+            btnEdit = new Button();
+            btnDelete = new Button();
             SuspendLayout();
             
             // ProjectCardControl
@@ -63,10 +67,27 @@ namespace ProjectManagement.WinForms.Controls
             lblCreated.TabIndex = 2;
             lblCreated.Text = "01/01/2024";
 
+            // btnEdit
+            btnEdit.Location = new Point(220, 8);
+            btnEdit.Name = "btnEdit";
+            btnEdit.Size = new Size(35, 23);
+            btnEdit.TabIndex = 3;
+            btnEdit.Text = "Edit";
+            btnEdit.UseVisualStyleBackColor = true;
+            
+            // btnDelete
+            btnDelete.Location = new Point(260, 8);
+            btnDelete.Name = "btnDelete";
+            btnDelete.Size = new Size(35, 23);
+            btnDelete.TabIndex = 4;
+            btnDelete.Text = "Del";
+            btnDelete.UseVisualStyleBackColor = true;
             
             Controls.Add(lblName);
             Controls.Add(lblDescription);
             Controls.Add(lblCreated);
+            Controls.Add(btnEdit);
+            Controls.Add(btnDelete);
             ResumeLayout(false);
             PerformLayout();
         }
