@@ -69,7 +69,7 @@ namespace ProjectManagement.WinForms
             // 
             lblTitle.AutoSize = true;
             lblTitle.Font = new Font("Segoe UI", 20F, FontStyle.Bold);
-            lblTitle.Location = new Point(137, 40);
+            lblTitle.Location = new Point(175, 43);
             lblTitle.Name = "lblTitle";
             lblTitle.Size = new Size(110, 46);
             lblTitle.TabIndex = 0;
