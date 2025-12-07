@@ -1,3 +1,4 @@
+using Microsoft.Extensions.DependencyInjection;
 using ProjectManagement.WinForms.Controls;
 using ProjectManagement.WinForms.Models;
 using ProjectManagement.WinForms.Services;
@@ -6,15 +7,15 @@ namespace ProjectManagement.WinForms
 {
     public partial class DashboardForm : Form
     {
-        private ApiService _apiService;
+        private readonly ApiService _apiService;
         private DateTime _lastProjectOpenTime = DateTime.MinValue;
         private int _lastProjectId = -1;
         private List<ProjectDto> _allProjects = new();
 
-        public DashboardForm()
+        public DashboardForm(ApiService apiService)
         {
             InitializeComponent();
-            _apiService = new ApiService();
+            _apiService = apiService;
         }
 
         private async void DashboardForm_Load(object sender, EventArgs e)
@@ -28,7 +29,7 @@ namespace ProjectManagement.WinForms
             if (AuthService.CurrentUser == null)
             {
                 MessageBox.Show("Session expired. Please login again.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                var loginForm = new LoginForm();
+                var loginForm = Program.ServiceProvider?.GetRequiredService<LoginForm>();
                 loginForm.Show();
                 this.Close();
                 return;
@@ -150,7 +151,8 @@ namespace ProjectManagement.WinForms
                 _lastProjectId = projectId;
                 _lastProjectOpenTime = now;
                 
-                var mainForm = new Form1(projectId, this);
+                var mainForm = Program.ServiceProvider?.GetRequiredService<Form1>();
+                mainForm.SetProjectContext(projectId, this);
                 mainForm.WindowState = FormWindowState.Normal;
                 mainForm.StartPosition = FormStartPosition.CenterScreen;
                 mainForm.Show();
@@ -165,7 +167,7 @@ namespace ProjectManagement.WinForms
 
         private async void btnAddProject_Click(object sender, EventArgs e)
         {
-            var projectForm = new ProjectForm();
+            var projectForm = Program.ServiceProvider?.GetRequiredService<ProjectForm>();
             if (projectForm.ShowDialog() == DialogResult.OK)
             {
                 await LoadProjects();
@@ -180,7 +182,8 @@ namespace ProjectManagement.WinForms
                 var project = projects.FirstOrDefault(p => p.Id == projectId);
                 if (project != null)
                 {
-                    var projectForm = new ProjectForm(project);
+                    var projectForm = Program.ServiceProvider?.GetRequiredService<ProjectForm>();
+                    projectForm.LoadProject(project);
                     if (projectForm.ShowDialog() == DialogResult.OK)
                     {
                         await LoadProjects();
@@ -195,7 +198,7 @@ namespace ProjectManagement.WinForms
 
         private void btnUserManager_Click(object sender, EventArgs e)
         {
-            var userForm = new UserManagementForm();
+            var userForm = Program.ServiceProvider?.GetRequiredService<UserManagementForm>();
             userForm.ShowDialog();
         }
 

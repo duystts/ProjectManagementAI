@@ -1,3 +1,4 @@
+using Microsoft.Extensions.DependencyInjection;
 using ProjectManagement.WinForms.Controls;
 using ProjectManagement.WinForms.Models;
 using ProjectManagement.WinForms.Services;
@@ -6,16 +7,18 @@ namespace ProjectManagement.WinForms
 {
     public partial class Form1 : Form
     {
-        private ApiService _apiService;
+        private readonly ApiService _apiService;
         private int _projectId;
         private DashboardForm? _parentDashboard;
 
-        public Form1() : this(1) { }
-
-        public Form1(int projectId, DashboardForm? parentDashboard = null)
+        public Form1(ApiService apiService)
         {
             InitializeComponent();
-            _apiService = new ApiService();
+            _apiService = apiService;
+        }
+
+        public void SetProjectContext(int projectId, DashboardForm? parentDashboard = null)
+        {
             _projectId = projectId;
             _parentDashboard = parentDashboard;
         }
@@ -89,7 +92,7 @@ namespace ProjectManagement.WinForms
 
         private async void btnAddTask_Click(object sender, EventArgs e)
         {
-            var taskForm = new TaskForm(_projectId);
+            var taskForm = Program.ServiceProvider?.GetRequiredService<TaskForm>();
             if (taskForm.ShowDialog() == DialogResult.OK)
             {
                 await LoadTasks();
@@ -104,7 +107,8 @@ namespace ProjectManagement.WinForms
                 var task = tasks.FirstOrDefault(t => t.Id == taskId);
                 if (task != null)
                 {
-                    var taskForm = new TaskForm(_projectId, task);
+                    var taskForm = Program.ServiceProvider?.GetRequiredService<TaskForm>();
+                    taskForm.LoadTask(task);
                     if (taskForm.ShowDialog() == DialogResult.OK)
                     {
                         await LoadTasks();
@@ -116,6 +120,7 @@ namespace ProjectManagement.WinForms
                 MessageBox.Show($"Error editing task: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
+
 
         private async void DeleteTask(int taskId)
         {

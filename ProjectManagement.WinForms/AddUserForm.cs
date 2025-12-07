@@ -5,12 +5,12 @@ namespace ProjectManagement.WinForms
 {
     public partial class AddUserForm : Form
     {
-        private ApiService _apiService;
+        private readonly ApiService _apiService;
 
-        public AddUserForm()
+        public AddUserForm(ApiService apiService)
         {
             InitializeComponent();
-            _apiService = new ApiService();
+            _apiService = apiService;
         }
 
         private void AddUserForm_Load(object sender, EventArgs e)

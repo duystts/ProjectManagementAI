@@ -1,3 +1,4 @@
+using Microsoft.Extensions.DependencyInjection;
 using ProjectManagement.WinForms.Models;
 using ProjectManagement.WinForms.Services;
 
@@ -5,12 +6,12 @@ namespace ProjectManagement.WinForms
 {
     public partial class UserManagementForm : Form
     {
-        private ApiService _api_service;
+        private readonly ApiService _apiService;
 
-        public UserManagementForm()
+        public UserManagementForm(ApiService apiService)
         {
             InitializeComponent();
-            _api_service = new ApiService();
+            _apiService = apiService;
 
             // handle button column clicks
             dgvUsers.CellContentClick += DgvUsers_CellContentClick;
@@ -25,7 +26,7 @@ namespace ProjectManagement.WinForms
         {
             try
             {
-                var users = await _api_service.GetUsersAsync();
+                var users = await _apiService.GetUsersAsync();
                 dgvUsers.DataSource = users;
 
                 // Set column widths safely
@@ -69,7 +70,7 @@ namespace ProjectManagement.WinForms
                     {
                         if (dgvUsers.Columns.Contains("Password"))
                         {
-                            row.Cells["Password"].Value = "••••••";
+                            row.Cells["Password"].Value = "ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½";
                         }
                     }
                 }
@@ -118,7 +119,7 @@ namespace ProjectManagement.WinForms
 
             try
             {
-                var success = await _api_service.ResetPasswordAsync(user.Id, defaultPassword);
+                var success = await _apiService.ResetPasswordAsync(user.Id, defaultPassword);
                 if (success)
                 {
                     // Show the new password once (do not copy to clipboard)
@@ -137,7 +138,7 @@ namespace ProjectManagement.WinForms
 
         private async void btnAdd_Click(object sender, EventArgs e)
         {
-            var addForm = new AddUserForm();
+            var addForm = Program.ServiceProvider?.GetRequiredService<AddUserForm>();
             if (addForm.ShowDialog() == DialogResult.OK)
             {
                 await LoadUsers();
@@ -160,7 +161,8 @@ namespace ProjectManagement.WinForms
                 return;
             }
             
-            var editForm = new EditUserForm(user);
+            var editForm = Program.ServiceProvider?.GetRequiredService<EditUserForm>();
+            editForm.LoadUser(user);
             if (editForm.ShowDialog() == DialogResult.OK)
             {
                 await LoadUsers();
@@ -194,7 +196,7 @@ namespace ProjectManagement.WinForms
             {
                 try
                 {
-                    var success = await _api_service.DeleteUserAsync(user.Id);
+                    var success = await _apiService.DeleteUserAsync(user.Id);
                     if (success)
                     {
                         MessageBox.Show("User deleted successfully!", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);

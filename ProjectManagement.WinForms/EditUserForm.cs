@@ -5,13 +5,17 @@ namespace ProjectManagement.WinForms
 {
     public partial class EditUserForm : Form
     {
-        private ApiService _apiService;
+        private readonly ApiService _apiService;
         private UserDto _user;
 
-        public EditUserForm(UserDto user)
+        public EditUserForm(ApiService apiService)
         {
             InitializeComponent();
-            _apiService = new ApiService();
+            _apiService = apiService;
+        }
+
+        public void LoadUser(UserDto user)
+        {
             _user = user;
         }
 
@@ -22,6 +26,7 @@ namespace ProjectManagement.WinForms
             cmbRole.DataSource = Enum.GetValues(typeof(UserRole));
             cmbRole.SelectedItem = _user.Role;
         }
+
 
         private async void btnSave_Click(object sender, EventArgs e)
         {

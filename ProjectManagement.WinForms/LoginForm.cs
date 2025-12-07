@@ -1,5 +1,6 @@
 using System;
 using System.Windows.Forms;
+using Microsoft.Extensions.DependencyInjection;
 using ProjectManagement.WinForms.Models;
 using ProjectManagement.WinForms.Services;
 
@@ -7,12 +8,12 @@ namespace ProjectManagement.WinForms
 {
     public partial class LoginForm : Form
     {
-        private ApiService _apiService;
+        private readonly ApiService _apiService;
 
-        public LoginForm()
+        public LoginForm(ApiService apiService)
         {
             InitializeComponent();
-            _apiService = new ApiService();
+            _apiService = apiService;
         }
 
         private async void btnLogin_Click(object sender, EventArgs e)
@@ -39,10 +40,13 @@ namespace ProjectManagement.WinForms
                 if (response != null)
                 {
                     AuthService.SetUser(response, response.Token);
-                    var dashboardForm = new DashboardForm();
-                    dashboardForm.FormClosed += (s, args) => this.Show();
-                    dashboardForm.Show();
-                    this.Hide();
+                    var dashboardForm = Program.ServiceProvider?.GetRequiredService<DashboardForm>();
+                    if (dashboardForm != null)
+                    {
+                        dashboardForm.FormClosed += (s, args) => this.Show();
+                        dashboardForm.Show();
+                        this.Hide();
+                    }
                 }
                 else
                 {
@@ -51,7 +55,7 @@ namespace ProjectManagement.WinForms
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Cannot connect to API server.\n\nError: {ex.Message}\n\nPlease ensure:\n1. API is running (dotnet run in ProjectManagement.API folder)\n2. API URL is https://localhost:7089", "Connection Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show($"Cannot connect to API server.\n\nError: {ex.Message}\n\nPlease ensure the API is running and the URL in appsettings.json is correct.", "Connection Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
             finally
             {
@@ -59,6 +63,7 @@ namespace ProjectManagement.WinForms
                 btnLogin.Text = "Login";
             }
         }
+
 
         private void txtPassword_KeyDown(object sender, KeyEventArgs e)
         {
