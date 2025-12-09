@@ -10,13 +10,9 @@ namespace ProjectManagement.WinForms
 
         protected override void Dispose(bool disposing)
         {
-            if (disposing)
+            if (disposing && (components != null))
             {
-                if (components != null)
-                {
-                    components.Dispose();
-                }
-                _apiService?.Dispose();
+                components.Dispose();
             }
             base.Dispose(disposing);
         }

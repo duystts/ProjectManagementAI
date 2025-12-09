@@ -1,3 +1,4 @@
+using Microsoft.Extensions.DependencyInjection;
 using ProjectManagement.WinForms.Controls;
 using ProjectManagement.WinForms.Models;
 using ProjectManagement.WinForms.Services;
@@ -6,21 +7,43 @@ namespace ProjectManagement.WinForms
 {
     public partial class Form1 : Form
     {
-        private ApiService _apiService;
+        private readonly ApiService _apiService;
         private int _projectId;
+        private DashboardForm? _parentDashboard;
 
-        public Form1() : this(1) { }
-
-        public Form1(int projectId)
+        public Form1(ApiService apiService)
         {
             InitializeComponent();
-            _apiService = new ApiService();
+            _apiService = apiService;
+        }
+
+        public void SetProjectContext(int projectId, DashboardForm? parentDashboard = null)
+        {
             _projectId = projectId;
+            _parentDashboard = parentDashboard;
         }
 
         private async void Form1_Load(object sender, EventArgs e)
         {
+            ConfigureUIByRole();
             await LoadTasks();
+        }
+
+        private void ConfigureUIByRole()
+        {
+            if (AuthService.CurrentUser == null) return;
+
+            switch (AuthService.CurrentUser.Role)
+            {
+                case UserRole.Admin:
+                case UserRole.Manager:
+                case UserRole.Member:
+                    btnAddTask.Visible = true;
+                    break;
+                case UserRole.Viewer:
+                    btnAddTask.Visible = false;
+                    break;
+            }
         }
 
         private async Task LoadTasks()
@@ -38,9 +61,9 @@ namespace ProjectManagement.WinForms
                 {
                     var taskCard = new TaskCardControl();
                     taskCard.SetData(task);
-                    taskCard.OnTaskClicked += TaskCard_OnTaskClicked;
-                    taskCard.OnEditTask += TaskCard_OnEditTask;
-                    taskCard.OnDeleteTask += TaskCard_OnDeleteTask;
+                    taskCard.OnTaskClicked += (id) => ShowTaskInfo(id);
+                    taskCard.OnEditTask += (id) => EditTask(id);
+                    taskCard.OnDeleteTask += (id) => DeleteTask(id);
 
                     switch (task.Status)
                     {
@@ -62,21 +85,21 @@ namespace ProjectManagement.WinForms
             }
         }
 
-        private void TaskCard_OnTaskClicked(int taskId)
+        private void ShowTaskInfo(int taskId)
         {
             MessageBox.Show($"Bạn đã chọn Task ID: {taskId}", "Task Selected", MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
 
         private async void btnAddTask_Click(object sender, EventArgs e)
         {
-            var taskForm = new TaskForm(_projectId);
+            var taskForm = Program.ServiceProvider?.GetRequiredService<TaskForm>();
             if (taskForm.ShowDialog() == DialogResult.OK)
             {
                 await LoadTasks();
             }
         }
 
-        private async void TaskCard_OnEditTask(int taskId)
+        private async void EditTask(int taskId)
         {
             try
             {
@@ -84,7 +107,8 @@ namespace ProjectManagement.WinForms
                 var task = tasks.FirstOrDefault(t => t.Id == taskId);
                 if (task != null)
                 {
-                    var taskForm = new TaskForm(_projectId, task);
+                    var taskForm = Program.ServiceProvider?.GetRequiredService<TaskForm>();
+                    taskForm.LoadTask(task);
                     if (taskForm.ShowDialog() == DialogResult.OK)
                     {
                         await LoadTasks();
@@ -97,7 +121,8 @@ namespace ProjectManagement.WinForms
             }
         }
 
-        private async void TaskCard_OnDeleteTask(int taskId)
+
+        private async void DeleteTask(int taskId)
         {
             var result = MessageBox.Show("Are you sure you want to delete this task?", "Confirm Delete", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
             if (result == DialogResult.Yes)
@@ -124,9 +149,12 @@ namespace ProjectManagement.WinForms
 
         private void btnBack_Click(object? sender, EventArgs e)
         {
-            var dashboardForm = new DashboardForm();
-            dashboardForm.Show();
-            this.Close();
+            if (_parentDashboard != null && !_parentDashboard.IsDisposed)
+            {
+                _parentDashboard.Show();
+                _parentDashboard.BringToFront();
+            }
+            Close();
         }
 
 

@@ -1,4 +1,5 @@
 using ProjectManagement.WinForms.Models;
+using ProjectManagement.WinForms.Services;
 
 namespace ProjectManagement.WinForms.Controls
 {
@@ -25,6 +26,31 @@ namespace ProjectManagement.WinForms.Controls
         public TaskCardControl()
         {
             InitializeComponent();
+            ConfigureButtonsByRole();
+        }
+
+        private void ConfigureButtonsByRole()
+        {
+            if (AuthService.CurrentUser == null)
+            {
+                btnEdit.Visible = false;
+                btnDelete.Visible = false;
+                return;
+            }
+
+            switch (AuthService.CurrentUser.Role)
+            {
+                case UserRole.Admin:
+                case UserRole.Manager:
+                case UserRole.Member:
+                    btnEdit.Visible = true;
+                    btnDelete.Visible = true;
+                    break;
+                case UserRole.Viewer:
+                    btnEdit.Visible = false;
+                    btnDelete.Visible = false;
+                    break;
+            }
         }
 
         private void BtnEdit_Click(object? sender, EventArgs e)

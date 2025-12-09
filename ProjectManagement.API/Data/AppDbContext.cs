@@ -9,6 +9,7 @@ namespace ProjectManagement.API.Data
         {
         }
 
+        public DbSet<User> Users { get; set; }
         public DbSet<Project> Projects { get; set; }
         public DbSet<ProjectTask> ProjectTasks { get; set; }
         public DbSet<TaskComment> TaskComments { get; set; }

@@ -32,14 +32,14 @@ namespace ProjectManagement.WinForms.Controls
             AutoScaleMode = AutoScaleMode.Font;
             BackColor = Color.White;
             BorderStyle = BorderStyle.FixedSingle;
-            Size = new Size(300, 80);
+            Size = new Size(735, 100);
             Click += ProjectCardControl_Click;
             
             // lblName
             lblName.AutoSize = true;
             lblName.Font = new Font("Segoe UI", 12F, FontStyle.Bold);
-            lblName.Location = new Point(8, 8);
-            lblName.MaximumSize = new Size(280, 0);
+            lblName.Location = new Point(10, 10);
+            lblName.MaximumSize = new Size(655, 0);
             lblName.Name = "lblName";
             lblName.Size = new Size(52, 21);
             lblName.TabIndex = 0;
@@ -49,8 +49,8 @@ namespace ProjectManagement.WinForms.Controls
             // lblDescription
             lblDescription.AutoSize = true;
             lblDescription.Font = new Font("Segoe UI", 9F);
-            lblDescription.Location = new Point(8, 32);
-            lblDescription.MaximumSize = new Size(280, 0);
+            lblDescription.Location = new Point(10, 40);
+            lblDescription.MaximumSize = new Size(655, 30);
             lblDescription.Name = "lblDescription";
             lblDescription.Size = new Size(67, 15);
             lblDescription.TabIndex = 1;
@@ -61,26 +61,32 @@ namespace ProjectManagement.WinForms.Controls
             lblCreated.AutoSize = true;
             lblCreated.Font = new Font("Segoe UI", 8F);
             lblCreated.ForeColor = Color.Gray;
-            lblCreated.Location = new Point(8, 58);
+            lblCreated.Location = new Point(10, 75);
             lblCreated.Name = "lblCreated";
             lblCreated.Size = new Size(60, 13);
             lblCreated.TabIndex = 2;
             lblCreated.Text = "01/01/2024";
 
             // btnEdit
-            btnEdit.Location = new Point(220, 8);
+            btnEdit.Location = new Point(675, 10);
             btnEdit.Name = "btnEdit";
-            btnEdit.Size = new Size(35, 23);
+            btnEdit.Size = new Size(25, 25);
             btnEdit.TabIndex = 3;
-            btnEdit.Text = "Edit";
+            btnEdit.Text = "✏️";
+            btnEdit.Font = new Font("Segoe UI", 10F);
+            btnEdit.FlatStyle = FlatStyle.Flat;
+            btnEdit.FlatAppearance.BorderSize = 0;
             btnEdit.UseVisualStyleBackColor = true;
             
             // btnDelete
-            btnDelete.Location = new Point(260, 8);
+            btnDelete.Location = new Point(675, 40);
             btnDelete.Name = "btnDelete";
-            btnDelete.Size = new Size(35, 23);
+            btnDelete.Size = new Size(25, 25);
             btnDelete.TabIndex = 4;
-            btnDelete.Text = "Del";
+            btnDelete.Text = "🗑️";
+            btnDelete.Font = new Font("Segoe UI", 10F);
+            btnDelete.FlatStyle = FlatStyle.Flat;
+            btnDelete.FlatAppearance.BorderSize = 0;
             btnDelete.UseVisualStyleBackColor = true;
             
             Controls.Add(lblName);

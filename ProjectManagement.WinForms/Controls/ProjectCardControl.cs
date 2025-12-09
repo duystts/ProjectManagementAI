@@ -1,4 +1,5 @@
 using ProjectManagement.WinForms.Models;
+using ProjectManagement.WinForms.Services;
 using System.ComponentModel;
 
 namespace ProjectManagement.WinForms.Controls
@@ -10,12 +11,8 @@ namespace ProjectManagement.WinForms.Controls
         public event Action<int>? OnDeleteProject;
         
         private ProjectDto? _projectData;
- Ngoccode
         
-        [System.ComponentModel.DesignerSerializationVisibility(System.ComponentModel.DesignerSerializationVisibility.Hidden)]
-
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
- main
         public ProjectDto? ProjectData
         {
             get => _projectData;
@@ -40,6 +37,38 @@ namespace ProjectManagement.WinForms.Controls
             // Đăng ký events cho buttons
             btnEdit.Click += BtnEdit_Click;
             btnDelete.Click += BtnDelete_Click;
+            
+            ConfigureButtonsByRole();
+        }
+
+        private void ConfigureButtonsByRole()
+        {
+            if (AuthService.CurrentUser == null)
+            {
+                btnEdit.Visible = false;
+                btnDelete.Visible = false;
+                return;
+            }
+
+            switch (AuthService.CurrentUser.Role)
+            {
+                case UserRole.Admin:
+                    btnEdit.Visible = true;
+                    btnDelete.Visible = true;
+                    break;
+                case UserRole.Manager:
+                    btnEdit.Visible = true;
+                    btnDelete.Visible = true;
+                    break;
+                case UserRole.Member:
+                    btnEdit.Visible = false;
+                    btnDelete.Visible = false;
+                    break;
+                case UserRole.Viewer:
+                    btnEdit.Visible = false;
+                    btnDelete.Visible = false;
+                    break;
+            }
         }
 
         private void BtnEdit_Click(object? sender, EventArgs e)

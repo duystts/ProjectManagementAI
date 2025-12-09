@@ -1,4 +1,5 @@
 using System.Text.Json;
+using Microsoft.Extensions.Configuration;
 using ProjectManagement.WinForms.Models;
 
 namespace ProjectManagement.WinForms.Services
@@ -6,15 +7,51 @@ namespace ProjectManagement.WinForms.Services
     public class ApiService
     {
         private readonly HttpClient _httpClient;
-        private readonly string _baseUrl = "http://localhost:5276/api";
+        private readonly string _baseUrl;
 
-        public ApiService()
+        public ApiService(HttpClient httpClient, IConfiguration configuration)
         {
-            _httpClient = new HttpClient();
+            _httpClient = httpClient;
+            _baseUrl = configuration["ApiBaseUrl"] ?? "http://localhost:5276/api";
+            UpdateAuthHeader();
+        }
+
+        private void UpdateAuthHeader()
+        {
+            _httpClient.DefaultRequestHeaders.Authorization = null;
+            if (!string.IsNullOrEmpty(AuthService.Token))
+            {
+                _httpClient.DefaultRequestHeaders.Authorization =
+                    new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", AuthService.Token);
+            }
+        }
+
+
+        public async Task<AuthResponse?> LoginAsync(LoginRequest request)
+        {
+            try
+            {
+                var json = JsonSerializer.Serialize(request);
+                var content = new StringContent(json, System.Text.Encoding.UTF8, "application/json");
+                var response = await _httpClient.PostAsync($"{_baseUrl}/auth/login", content);
+                
+                if (response.IsSuccessStatusCode)
+                {
+                    var responseJson = await response.Content.ReadAsStringAsync();
+                    var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
+                    return JsonSerializer.Deserialize<AuthResponse>(responseJson, options);
+                }
+                return null;
+            }
+            catch
+            {
+                return null;
+            }
         }
 
         public async Task<List<ProjectDto>> GetProjectsAsync()
         {
+            UpdateAuthHeader();
             try
             {
                 var response = await _httpClient.GetAsync($"{_baseUrl}/projects");
@@ -34,6 +71,7 @@ namespace ProjectManagement.WinForms.Services
 
         public async Task<List<ProjectTaskDto>> GetTasksByProjectAsync(int projectId)
         {
+            UpdateAuthHeader();
             try
             {
                 var response = await _httpClient.GetAsync($"{_baseUrl}/tasks/project/{projectId}");
@@ -53,6 +91,7 @@ namespace ProjectManagement.WinForms.Services
 
         public async Task<ProjectDto?> CreateProjectAsync(ProjectDto project)
         {
+            UpdateAuthHeader();
             try
             {
                 var json = JsonSerializer.Serialize(project);
@@ -75,6 +114,7 @@ namespace ProjectManagement.WinForms.Services
 
         public async Task<bool> UpdateProjectAsync(ProjectDto project)
         {
+            UpdateAuthHeader();
             try
             {
                 var json = JsonSerializer.Serialize(project);
@@ -90,6 +130,7 @@ namespace ProjectManagement.WinForms.Services
 
         public async Task<bool> DeleteProjectAsync(int projectId)
         {
+            UpdateAuthHeader();
             try
             {
                 var response = await _httpClient.DeleteAsync($"{_baseUrl}/projects/{projectId}");
@@ -103,6 +144,7 @@ namespace ProjectManagement.WinForms.Services
 
         public async Task<ProjectTaskDto?> CreateTaskAsync(ProjectTaskDto task)
         {
+            UpdateAuthHeader();
             try
             {
                 var request = new
@@ -133,6 +175,7 @@ namespace ProjectManagement.WinForms.Services
 
         public async Task<bool> UpdateTaskAsync(ProjectTaskDto task)
         {
+            UpdateAuthHeader();
             try
             {
                 var request = new
@@ -156,6 +199,7 @@ namespace ProjectManagement.WinForms.Services
 
         public async Task<bool> DeleteTaskAsync(int taskId)
         {
+            UpdateAuthHeader();
             try
             {
                 var response = await _httpClient.DeleteAsync($"{_baseUrl}/tasks/{taskId}");
@@ -167,9 +211,95 @@ namespace ProjectManagement.WinForms.Services
             }
         }
 
-        public void Dispose()
+        public async Task<List<UserDto>> GetUsersAsync()
         {
-            _httpClient?.Dispose();
+            UpdateAuthHeader();
+            try
+            {
+                var response = await _httpClient.GetAsync($"{_baseUrl}/users");
+                if (response.IsSuccessStatusCode)
+                {
+                    var json = await response.Content.ReadAsStringAsync();
+                    var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
+                    return JsonSerializer.Deserialize<List<UserDto>>(json, options) ?? new List<UserDto>();
+                }
+                return new List<UserDto>();
+            }
+            catch
+            {
+                return new List<UserDto>();
+            }
         }
+
+        public async Task<UserDto?> CreateUserAsync(CreateUserRequest request)
+        {
+            UpdateAuthHeader();
+            try
+            {
+                var json = JsonSerializer.Serialize(request);
+                var content = new StringContent(json, System.Text.Encoding.UTF8, "application/json");
+                var response = await _httpClient.PostAsync($"{_baseUrl}/users", content);
+                
+                if (response.IsSuccessStatusCode)
+                {
+                    var responseJson = await response.Content.ReadAsStringAsync();
+                    var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
+                    return JsonSerializer.Deserialize<UserDto>(responseJson, options);
+                }
+                return null;
+            }
+            catch
+            {
+                return null;
+            }
+        }
+
+        public async Task<bool> UpdateUserAsync(int userId, UpdateUserRequest request)
+        {
+            UpdateAuthHeader();
+            try
+            {
+                var json = JsonSerializer.Serialize(request);
+                var content = new StringContent(json, System.Text.Encoding.UTF8, "application/json");
+                var response = await _httpClient.PutAsync($"{_baseUrl}/users/{userId}", content);
+                return response.IsSuccessStatusCode;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        public async Task<bool> DeleteUserAsync(int userId)
+        {
+            UpdateAuthHeader();
+            try
+            {
+                var response = await _httpClient.DeleteAsync($"{_baseUrl}/users/{userId}");
+                return response.IsSuccessStatusCode;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        public async Task<bool> ResetPasswordAsync(int userId, string newPassword)
+        {
+            UpdateAuthHeader();
+            try
+            {
+                var request = new { NewPassword = newPassword };
+                var json = JsonSerializer.Serialize(request);
+                var content = new StringContent(json, System.Text.Encoding.UTF8, "application/json");
+                var response = await _httpClient.PostAsync($"{_baseUrl}/users/{userId}/reset-password", content);
+                return response.IsSuccessStatusCode;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
     }
 }

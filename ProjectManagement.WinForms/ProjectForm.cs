@@ -5,42 +5,33 @@ namespace ProjectManagement.WinForms
 {
     public partial class ProjectForm : Form
     {
-        private ApiService _apiService;
+        private readonly ApiService _apiService;
         private ProjectDto? _project;
         private bool _isEditMode;
 
-        public ProjectForm() : this(null) { }
-
-        public ProjectForm(ProjectDto? project)
+        public ProjectForm(ApiService apiService)
         {
             InitializeComponent();
-            _apiService = new ApiService();
-            _project = project;
-            _isEditMode = project != null;
-            
-            if (_isEditMode)
-            {
-                LoadProjectData();
-                this.Text = "Edit Project";
-                btnSave.Text = "Update";
-                btnDelete.Visible = true;
-            }
-            else
-            {
-                this.Text = "Add New Project";
-                btnSave.Text = "Create";
-                btnDelete.Visible = false;
-            }
+            _apiService = apiService;
+            _isEditMode = false;
+            this.Text = "Add New Project";
+            btnSave.Text = "Create";
+            btnDelete.Visible = false;
         }
 
-        private void LoadProjectData()
+        public void LoadProject(ProjectDto project)
         {
-            if (_project != null)
-            {
-                txtName.Text = _project.Name;
-                txtDescription.Text = _project.Description;
-            }
+            _project = project;
+            _isEditMode = true;
+
+            txtName.Text = _project.Name;
+            txtDescription.Text = _project.Description;
+
+            this.Text = "Edit Project";
+            btnSave.Text = "Update";
+            btnDelete.Visible = true;
         }
+
 
         private async void btnSave_Click(object sender, EventArgs e)
         {

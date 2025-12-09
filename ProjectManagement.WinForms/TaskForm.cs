@@ -5,36 +5,38 @@ namespace ProjectManagement.WinForms
 {
     public partial class TaskForm : Form
     {
-        private ApiService _apiService;
+        private readonly ApiService _apiService;
         private ProjectTaskDto? _task;
         private bool _isEditMode;
         private int _projectId;
 
-        public TaskForm(int projectId) : this(projectId, null) { }
-
-        public TaskForm(int projectId, ProjectTaskDto? task)
+        public TaskForm(ApiService apiService, int projectId)
         {
             InitializeComponent();
-            _apiService = new ApiService();
-            _task = task;
+            _apiService = apiService;
             _projectId = projectId;
-            _isEditMode = task != null;
-            
+            _isEditMode = false;
+
             InitializeComboBoxes();
             
-            if (_isEditMode)
-            {
-                LoadTaskData();
-                this.Text = "Edit Task";
-                btnSave.Text = "Update";
-            }
-            else
-            {
-                this.Text = "Add New Task";
-                btnSave.Text = "Create";
-                cmbStatus.SelectedIndex = 0; // Todo
-                cmbPriority.SelectedIndex = 1; // Medium
-            }
+            this.Text = "Add New Task";
+            btnSave.Text = "Create";
+            cmbStatus.SelectedIndex = 0; // Todo
+            cmbPriority.SelectedIndex = 1; // Medium
+        }
+
+        public void LoadTask(ProjectTaskDto task)
+        {
+            _task = task;
+            _isEditMode = true;
+
+            txtTitle.Text = _task.Title;
+            txtDescription.Text = _task.Description;
+            cmbStatus.SelectedIndex = (int)_task.Status;
+            cmbPriority.SelectedIndex = (int)_task.Priority;
+
+            this.Text = "Edit Task";
+            btnSave.Text = "Update";
         }
 
         private void InitializeComboBoxes()
@@ -43,16 +45,6 @@ namespace ProjectManagement.WinForms
             cmbPriority.Items.AddRange(new[] { "Low", "Medium", "High" });
         }
 
-        private void LoadTaskData()
-        {
-            if (_task != null)
-            {
-                txtTitle.Text = _task.Title;
-                txtDescription.Text = _task.Description;
-                cmbStatus.SelectedIndex = (int)_task.Status;
-                cmbPriority.SelectedIndex = (int)_task.Priority;
-            }
-        }
 
         private async void btnSave_Click(object sender, EventArgs e)
         {

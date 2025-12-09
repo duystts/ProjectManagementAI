@@ -10,6 +10,42 @@ namespace ProjectManagement.API.Data
             if (context.Projects.Any())
                 return;
 
+            // Seed Users
+            var users = new[]
+            {
+                new User
+                {
+                    Username = "admin",
+                    PasswordHash = BCrypt.Net.BCrypt.HashPassword("admin123"),
+                    FullName = "Administrator",
+                    Role = UserRole.Admin
+                },
+                new User
+                {
+                    Username = "manager",
+                    PasswordHash = BCrypt.Net.BCrypt.HashPassword("manager123"),
+                    FullName = "Project Manager",
+                    Role = UserRole.Manager
+                },
+                new User
+                {
+                    Username = "member",
+                    PasswordHash = BCrypt.Net.BCrypt.HashPassword("member123"),
+                    FullName = "Team Member",
+                    Role = UserRole.Member
+                },
+                new User
+                {
+                    Username = "viewer",
+                    PasswordHash = BCrypt.Net.BCrypt.HashPassword("viewer123"),
+                    FullName = "Project Viewer",
+                    Role = UserRole.Viewer
+                }
+            };
+
+            context.Users.AddRange(users);
+            context.SaveChanges();
+
             var projects = new[]
             {
                 new Project

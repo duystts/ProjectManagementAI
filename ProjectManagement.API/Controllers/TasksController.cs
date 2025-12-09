@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using ProjectManagement.API.Data;
@@ -8,6 +9,7 @@ namespace ProjectManagement.API.Controllers
 {
     [ApiController]
     [Route("api/tasks")]
+    [Authorize]
     public class TasksController : ControllerBase
     {
         private readonly AppDbContext _context;
@@ -26,6 +28,7 @@ namespace ProjectManagement.API.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = "Admin,Manager,Member")]
         public async Task<ActionResult<ProjectTask>> CreateTask(CreateTaskRequest request)
         {
             var project = await _context.Projects.FindAsync(request.ProjectId);
@@ -48,6 +51,7 @@ namespace ProjectManagement.API.Controllers
         }
 
         [HttpPut("{id}/status")]
+        [Authorize(Roles = "Admin,Manager,Member")]
         public async Task<IActionResult> UpdateTaskStatus(int id, UpdateStatusRequest request)
         {
             var task = await _context.ProjectTasks.FindAsync(id);
@@ -60,6 +64,7 @@ namespace ProjectManagement.API.Controllers
         }
 
         [HttpPut("{id}")]
+        [Authorize(Roles = "Admin,Manager,Member")]
         public async Task<IActionResult> UpdateTask(int id, UpdateTaskRequest request)
         {
             var task = await _context.ProjectTasks.FindAsync(id);
@@ -76,6 +81,7 @@ namespace ProjectManagement.API.Controllers
         }
 
         [HttpDelete("{id}")]
+        [Authorize(Roles = "Admin,Manager,Member")]
         public async Task<IActionResult> DeleteTask(int id)
         {
             var task = await _context.ProjectTasks.FindAsync(id);
