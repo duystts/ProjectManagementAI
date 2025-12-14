@@ -1,9 +1,10 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using ProjectManagement.API.Data;
-using ProjectManagement.API.Models;
-using ProjectManagement.API.Models.Enums;
+using ProjectManagement.BLL.Interfaces;
+using ProjectManagement.Entities.Models.DTOs;
+using ProjectManagement.Entities.Models.Enums;
+using TaskStatusEnum = ProjectManagement.Entities.Models.Enums.TaskStatus;
+using System.Security.Claims;
 
 namespace ProjectManagement.API.Controllers
 {
@@ -12,54 +13,47 @@ namespace ProjectManagement.API.Controllers
     [Authorize]
     public class TasksController : ControllerBase
     {
-        private readonly AppDbContext _context;
+        private readonly ITaskService _taskService;
 
-        public TasksController(AppDbContext context)
+        public TasksController(ITaskService taskService)
         {
-            _context = context;
+            _taskService = taskService;
         }
 
         [HttpGet("project/{projectId}")]
-        public async Task<ActionResult<IEnumerable<ProjectTask>>> GetTasksByProject(int projectId)
+        public async Task<ActionResult<IEnumerable<ProjectTaskDto>>> GetTasksByProject(int projectId)
         {
-            return await _context.ProjectTasks
-                .Where(t => t.ProjectId == projectId)
-                .ToListAsync();
+            var tasks = await _taskService.GetTasksByProjectIdAsync(projectId);
+            return Ok(tasks);
         }
 
         [HttpPost]
         [Authorize(Roles = "Admin,Manager,Member")]
-        public async Task<ActionResult<ProjectTask>> CreateTask(CreateTaskRequest request)
+        public async Task<ActionResult<ProjectTaskDto>> CreateTask(CreateTaskRequest request)
         {
-            var project = await _context.Projects.FindAsync(request.ProjectId);
-            if (project == null)
-                return NotFound("Project not found");
-
-            var task = new ProjectTask
+            var taskDto = new ProjectTaskDto
             {
                 ProjectId = request.ProjectId,
                 Title = request.Title,
                 Description = request.Description,
-                Priority = request.Priority,
-                Status = Models.Enums.TaskStatus.Todo,
-                CreatedAt = DateTime.Now
+                Priority = request.Priority
             };
 
-            _context.ProjectTasks.Add(task);
-            await _context.SaveChangesAsync();
-            return CreatedAtAction(nameof(GetTasksByProject), new { projectId = task.ProjectId }, task);
+            var result = await _taskService.CreateTaskAsync(taskDto);
+            if (result == null)
+                return NotFound("Project not found");
+
+            return CreatedAtAction(nameof(GetTasksByProject), new { projectId = result.ProjectId }, result);
         }
 
         [HttpPut("{id}/status")]
         [Authorize(Roles = "Admin,Manager,Member")]
         public async Task<IActionResult> UpdateTaskStatus(int id, UpdateStatusRequest request)
         {
-            var task = await _context.ProjectTasks.FindAsync(id);
-            if (task == null)
+            var success = await _taskService.UpdateTaskStatusAsync(id, request.Status);
+            if (!success)
                 return NotFound();
 
-            task.Status = request.Status;
-            await _context.SaveChangesAsync();
             return NoContent();
         }
 
@@ -67,16 +61,19 @@ namespace ProjectManagement.API.Controllers
         [Authorize(Roles = "Admin,Manager,Member")]
         public async Task<IActionResult> UpdateTask(int id, UpdateTaskRequest request)
         {
-            var task = await _context.ProjectTasks.FindAsync(id);
-            if (task == null)
+            var taskDto = new ProjectTaskDto
+            {
+                Id = id,
+                Title = request.Title,
+                Description = request.Description,
+                Priority = request.Priority,
+                Status = request.Status
+            };
+
+            var success = await _taskService.UpdateTaskAsync(id, taskDto);
+            if (!success)
                 return NotFound();
 
-            task.Title = request.Title;
-            task.Description = request.Description;
-            task.Priority = request.Priority;
-            task.Status = request.Status;
-
-            await _context.SaveChangesAsync();
             return NoContent();
         }
 
@@ -84,60 +81,52 @@ namespace ProjectManagement.API.Controllers
         [Authorize(Roles = "Admin,Manager,Member")]
         public async Task<IActionResult> DeleteTask(int id)
         {
-            var task = await _context.ProjectTasks.FindAsync(id);
-            if (task == null)
+            var success = await _taskService.DeleteTaskAsync(id);
+            if (!success)
                 return NotFound();
 
-            _context.ProjectTasks.Remove(task);
-            await _context.SaveChangesAsync();
             return NoContent();
         }
 
-        [HttpPost("{id}/comments")]
-        public async Task<ActionResult<TaskComment>> AddComment(int id, AddCommentRequest request)
+        [HttpPost("{id}/assign/{userId}")]
+        [Authorize(Roles = "Admin,Manager,Member")]
+        public async Task<IActionResult> AssignTask(int id, int userId)
         {
-            var task = await _context.ProjectTasks.FindAsync(id);
-            if (task == null)
+            var success = await _taskService.AssignTaskAsync(id, userId);
+            if (!success)
+                return NotFound("Task or User not found");
+
+            return NoContent();
+        }
+
+        [HttpPost("{id}/assign-self")]
+        [Authorize(Roles = "Manager,Member")]
+        public async Task<IActionResult> SelfAssignTask(int id)
+        {
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (!int.TryParse(userIdClaim, out int currentUserId))
+                return Unauthorized();
+
+            var success = await _taskService.SelfAssignTaskAsync(id, currentUserId);
+            if (!success)
                 return NotFound("Task not found");
 
-            var comment = new TaskComment
-            {
-                ProjectTaskId = id,
-                Content = request.Content,
-                IsAiGenerated = request.IsAiGenerated,
-                CreatedAt = DateTime.Now
-            };
-
-            _context.TaskComments.Add(comment);
-            await _context.SaveChangesAsync();
-            return CreatedAtAction(nameof(AddComment), new { id = comment.Id }, comment);
+            return NoContent();
         }
+
+        [HttpPost("{id}/unassign")]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> UnassignTask(int id)
+        {
+            var success = await _taskService.UnassignTaskAsync(id);
+            if (!success)
+                return NotFound("Task not found");
+
+            return NoContent();
+        }
+
+        // TODO: Implement comment functionality in BLL layer
     }
 
-    public class CreateTaskRequest
-    {
-        public int ProjectId { get; set; }
-        public string Title { get; set; } = string.Empty;
-        public string Description { get; set; } = string.Empty;
-        public TaskPriority Priority { get; set; }
-    }
 
-    public class UpdateStatusRequest
-    {
-        public Models.Enums.TaskStatus Status { get; set; }
-    }
-
-    public class UpdateTaskRequest
-    {
-        public string Title { get; set; } = string.Empty;
-        public string Description { get; set; } = string.Empty;
-        public TaskPriority Priority { get; set; }
-        public Models.Enums.TaskStatus Status { get; set; }
-    }
-
-    public class AddCommentRequest
-    {
-        public string Content { get; set; } = string.Empty;
-        public bool IsAiGenerated { get; set; }
-    }
 }

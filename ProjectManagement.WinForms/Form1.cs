@@ -1,6 +1,8 @@
 using Microsoft.Extensions.DependencyInjection;
 using ProjectManagement.WinForms.Controls;
-using ProjectManagement.WinForms.Models;
+using ProjectManagement.Entities.Models.DTOs;
+using ProjectManagement.Entities.Models.Enums;
+using TaskStatusEnum = ProjectManagement.Entities.Models.Enums.TaskStatus;
 using ProjectManagement.WinForms.Services;
 
 namespace ProjectManagement.WinForms
@@ -64,16 +66,18 @@ namespace ProjectManagement.WinForms
                     taskCard.OnTaskClicked += (id) => ShowTaskInfo(id);
                     taskCard.OnEditTask += (id) => EditTask(id);
                     taskCard.OnDeleteTask += (id) => DeleteTask(id);
+                    taskCard.OnAssignTask += (id) => AssignTask(id);
+                    taskCard.OnUnassignTask += (id) => UnassignTask(id);
 
                     switch (task.Status)
                     {
-                        case Models.TaskStatus.Todo:
+                        case TaskStatusEnum.Todo:
                             flpTodo.Controls.Add(taskCard);
                             break;
-                        case Models.TaskStatus.InProgress:
+                        case TaskStatusEnum.InProgress:
                             flpProgress.Controls.Add(taskCard);
                             break;
-                        case Models.TaskStatus.Done:
+                        case TaskStatusEnum.Done:
                             flpDone.Controls.Add(taskCard);
                             break;
                     }
@@ -92,7 +96,7 @@ namespace ProjectManagement.WinForms
 
         private async void btnAddTask_Click(object sender, EventArgs e)
         {
-            var taskForm = Program.ServiceProvider?.GetRequiredService<TaskForm>();
+            var taskForm = new TaskForm(_apiService, _projectId);
             if (taskForm.ShowDialog() == DialogResult.OK)
             {
                 await LoadTasks();
@@ -107,7 +111,7 @@ namespace ProjectManagement.WinForms
                 var task = tasks.FirstOrDefault(t => t.Id == taskId);
                 if (task != null)
                 {
-                    var taskForm = Program.ServiceProvider?.GetRequiredService<TaskForm>();
+                    var taskForm = new TaskForm(_apiService, _projectId);
                     taskForm.LoadTask(task);
                     if (taskForm.ShowDialog() == DialogResult.OK)
                     {
@@ -155,6 +159,112 @@ namespace ProjectManagement.WinForms
                 _parentDashboard.BringToFront();
             }
             Close();
+        }
+
+        private async void AssignTask(int taskId)
+        {
+            try
+            {
+                if (AuthService.CurrentUser?.Role == UserRole.Admin)
+                {
+                    var users = await _apiService.GetUsersAsync();
+                    if (users.Count == 0)
+                    {
+                        MessageBox.Show("No users available to assign.", "Info", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                        return;
+                    }
+
+                    var userNames = users.Select(u => $"{u.Username} ({u.Role})").ToArray();
+                    var selectedIndex = ShowSelectionDialog("Select User to Assign", userNames);
+                    
+                    if (selectedIndex >= 0)
+                    {
+                        var selectedUser = users[selectedIndex];
+                        var success = await _apiService.AssignTaskAsync(taskId, selectedUser.Id);
+                        if (success)
+                        {
+                            MessageBox.Show($"Task assigned to {selectedUser.Username} successfully!", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                            await LoadTasks();
+                        }
+                        else
+                        {
+                            MessageBox.Show("Failed to assign task.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        }
+                    }
+                }
+                else
+                {
+                    // Self-assign for Manager and Member
+                    var success = await _apiService.SelfAssignTaskAsync(taskId);
+                    if (success)
+                    {
+                        MessageBox.Show("Task assigned to yourself successfully!", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                        await LoadTasks();
+                    }
+                    else
+                    {
+                        MessageBox.Show("Failed to assign task.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error assigning task: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private async void UnassignTask(int taskId)
+        {
+            var result = MessageBox.Show("Are you sure you want to unassign this task?", "Confirm Unassign", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+            if (result == DialogResult.Yes)
+            {
+                try
+                {
+                    var success = await _apiService.UnassignTaskAsync(taskId);
+                    if (success)
+                    {
+                        MessageBox.Show("Task unassigned successfully!", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                        await LoadTasks();
+                    }
+                    else
+                    {
+                        MessageBox.Show("Failed to unassign task.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Error unassigning task: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+            }
+        }
+
+        private int ShowSelectionDialog(string title, string[] items)
+        {
+            using var form = new Form()
+            {
+                Text = title,
+                Size = new Size(300, 200),
+                StartPosition = FormStartPosition.CenterParent
+            };
+
+            var listBox = new ListBox()
+            {
+                Dock = DockStyle.Fill,
+                DataSource = items
+            };
+
+            var btnOk = new Button()
+            {
+                Text = "OK",
+                DialogResult = DialogResult.OK,
+                Dock = DockStyle.Bottom
+            };
+
+            form.Controls.Add(listBox);
+            form.Controls.Add(btnOk);
+            form.AcceptButton = btnOk;
+
+            return form.ShowDialog() == DialogResult.OK ? listBox.SelectedIndex : -1;
         }
 
 

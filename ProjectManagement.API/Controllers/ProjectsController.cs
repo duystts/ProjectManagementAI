@@ -1,8 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using ProjectManagement.API.Data;
-using ProjectManagement.API.Models;
+using ProjectManagement.BLL.Interfaces;
+using ProjectManagement.Entities.Models.DTOs;
 
 namespace ProjectManagement.API.Controllers
 {
@@ -11,36 +10,35 @@ namespace ProjectManagement.API.Controllers
     [Authorize]
     public class ProjectsController : ControllerBase
     {
-        private readonly AppDbContext _context;
+        private readonly IProjectService _projectService;
 
-        public ProjectsController(AppDbContext context)
+        public ProjectsController(IProjectService projectService)
         {
-            _context = context;
+            _projectService = projectService;
         }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Project>>> GetProjects()
+        public async Task<ActionResult<IEnumerable<ProjectDto>>> GetProjects()
         {
-            return await _context.Projects.ToListAsync();
+            var projects = await _projectService.GetAllProjectsAsync();
+            return Ok(projects);
         }
 
         [HttpPost]
         [Authorize(Roles = "Admin,Manager")]
-        public async Task<ActionResult<Project>> CreateProject(Project project)
+        public async Task<ActionResult<ProjectDto>> CreateProject(ProjectDto project)
         {
-            project.CreatedAt = DateTime.Now;
-            _context.Projects.Add(project);
-            await _context.SaveChangesAsync();
-            return CreatedAtAction(nameof(GetProject), new { id = project.Id }, project);
+            var result = await _projectService.CreateProjectAsync(project);
+            if (result == null)
+                return BadRequest("Failed to create project");
+
+            return CreatedAtAction(nameof(GetProject), new { id = result.Id }, result);
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult<Project>> GetProject(int id)
+        public async Task<ActionResult<ProjectDto>> GetProject(int id)
         {
-            var project = await _context.Projects
-                .Include(p => p.ProjectTasks)
-                .FirstOrDefaultAsync(p => p.Id == id);
-
+            var project = await _projectService.GetProjectByIdAsync(id);
             if (project == null)
                 return NotFound();
 
@@ -49,19 +47,12 @@ namespace ProjectManagement.API.Controllers
 
         [HttpPut("{id}")]
         [Authorize(Roles = "Admin,Manager")]
-        public async Task<IActionResult> UpdateProject(int id, Project project)
+        public async Task<IActionResult> UpdateProject(int id, ProjectDto project)
         {
-            if (id != project.Id)
-                return BadRequest();
-
-            var existingProject = await _context.Projects.FindAsync(id);
-            if (existingProject == null)
+            var success = await _projectService.UpdateProjectAsync(id, project);
+            if (!success)
                 return NotFound();
 
-            existingProject.Name = project.Name;
-            existingProject.Description = project.Description;
-
-            await _context.SaveChangesAsync();
             return NoContent();
         }
 
@@ -69,12 +60,10 @@ namespace ProjectManagement.API.Controllers
         [Authorize(Roles = "Admin,Manager")]
         public async Task<IActionResult> DeleteProject(int id)
         {
-            var project = await _context.Projects.FindAsync(id);
-            if (project == null)
+            var success = await _projectService.DeleteProjectAsync(id);
+            if (!success)
                 return NotFound();
 
-            _context.Projects.Remove(project);
-            await _context.SaveChangesAsync();
             return NoContent();
         }
     }

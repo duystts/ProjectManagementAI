@@ -1,6 +1,6 @@
 using System.Text.Json;
 using Microsoft.Extensions.Configuration;
-using ProjectManagement.WinForms.Models;
+using ProjectManagement.Entities.Models.DTOs;
 
 namespace ProjectManagement.WinForms.Services
 {
@@ -293,6 +293,48 @@ namespace ProjectManagement.WinForms.Services
                 var json = JsonSerializer.Serialize(request);
                 var content = new StringContent(json, System.Text.Encoding.UTF8, "application/json");
                 var response = await _httpClient.PostAsync($"{_baseUrl}/users/{userId}/reset-password", content);
+                return response.IsSuccessStatusCode;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        public async Task<bool> AssignTaskAsync(int taskId, int userId)
+        {
+            UpdateAuthHeader();
+            try
+            {
+                var response = await _httpClient.PostAsync($"{_baseUrl}/tasks/{taskId}/assign/{userId}", null);
+                return response.IsSuccessStatusCode;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        public async Task<bool> SelfAssignTaskAsync(int taskId)
+        {
+            UpdateAuthHeader();
+            try
+            {
+                var response = await _httpClient.PostAsync($"{_baseUrl}/tasks/{taskId}/assign-self", null);
+                return response.IsSuccessStatusCode;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        public async Task<bool> UnassignTaskAsync(int taskId)
+        {
+            UpdateAuthHeader();
+            try
+            {
+                var response = await _httpClient.PostAsync($"{_baseUrl}/tasks/{taskId}/unassign", null);
                 return response.IsSuccessStatusCode;
             }
             catch

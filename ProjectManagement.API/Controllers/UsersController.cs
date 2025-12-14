@@ -1,8 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using ProjectManagement.API.Data;
-using ProjectManagement.API.Models;
+using ProjectManagement.BLL.Interfaces;
+using ProjectManagement.Entities.Models.DTOs;
 
 namespace ProjectManagement.API.Controllers
 {
@@ -11,126 +10,50 @@ namespace ProjectManagement.API.Controllers
     [Authorize(Roles = "Admin")]
     public class UsersController : ControllerBase
     {
-        private readonly AppDbContext _context;
+        private readonly IUserService _userService;
 
-        public UsersController(AppDbContext context)
+        public UsersController(IUserService userService)
         {
-            _context = context;
+            _userService = userService;
         }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<object>>> GetUsers()
+        public async Task<ActionResult<IEnumerable<UserDto>>> GetUsers()
         {
-            var users = await _context.Users
-                .Select(u => new
-                {
-                    u.Id,
-                    u.Username,
-                    u.FullName,
-                    u.Role,
-                    u.CreatedAt
-                })
-                .ToListAsync();
+            var users = await _userService.GetAllUsersAsync();
             return Ok(users);
         }
 
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateUser(int id, UpdateUserRequest request)
         {
-            var user = await _context.Users.FindAsync(id);
-            if (user == null)
-                return NotFound();
-            
-            if (user.Username == "admin")
-                return BadRequest("Cannot edit admin user");
+            var success = await _userService.UpdateUserAsync(id, request);
+            if (!success)
+                return BadRequest("Cannot update user or admin already exists");
 
-            // Prevent promoting another user to Admin if an admin already exists
-            if (request.Role == Models.Enums.UserRole.Admin)
-            {
-                var existingAdmin = await _context.Users.FirstOrDefaultAsync(u => u.Role == Models.Enums.UserRole.Admin);
-                if (existingAdmin != null && existingAdmin.Id != id)
-                {
-                    return BadRequest("An admin account already exists. Cannot promote another user to Admin.");
-                }
-            }
-
-            user.FullName = request.FullName;
-            user.Role = request.Role;
-            
-            if (!string.IsNullOrEmpty(request.NewPassword))
-            {
-                user.PasswordHash = BCrypt.Net.BCrypt.HashPassword(request.NewPassword);
-            }
-
-            await _context.SaveChangesAsync();
             return NoContent();
         }
 
         [HttpPost]
-        public async Task<ActionResult<object>> CreateUser(CreateUserRequest request)
+        public async Task<ActionResult<UserDto>> CreateUser(CreateUserRequest request)
         {
-            if (await _context.Users.AnyAsync(u => u.Username == request.Username))
-                return BadRequest("Username already exists");
+            var result = await _userService.CreateUserAsync(request);
+            if (result == null)
+                return BadRequest("Username already exists or admin already exists");
 
-            // Prevent creating more than one Admin
-            if (request.Role == Models.Enums.UserRole.Admin)
-            {
-                var existingAdmin = await _context.Users.FirstOrDefaultAsync(u => u.Role == Models.Enums.UserRole.Admin);
-                if (existingAdmin != null)
-                {
-                    return BadRequest("An admin account already exists. Cannot create another admin.");
-                }
-            }
-
-            var user = new User
-            {
-                Username = request.Username,
-                PasswordHash = BCrypt.Net.BCrypt.HashPassword(request.Password),
-                FullName = request.FullName,
-                Role = request.Role
-            };
-
-            _context.Users.Add(user);
-            await _context.SaveChangesAsync();
-
-            return Ok(new
-            {
-                user.Id,
-                user.Username,
-                user.FullName,
-                user.Role,
-                user.CreatedAt
-            });
+            return Ok(result);
         }
 
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteUser(int id)
         {
-            var user = await _context.Users.FindAsync(id);
-            if (user == null)
-                return NotFound();
-            
-            if (user.Username == "admin")
-                return BadRequest("Cannot delete admin user");
+            var success = await _userService.DeleteUserAsync(id);
+            if (!success)
+                return BadRequest("Cannot delete user or user not found");
 
-            _context.Users.Remove(user);
-            await _context.SaveChangesAsync();
             return NoContent();
         }
     }
 
-    public class CreateUserRequest
-    {
-        public string Username { get; set; } = string.Empty;
-        public string Password { get; set; } = string.Empty;
-        public string FullName { get; set; } = string.Empty;
-        public Models.Enums.UserRole Role { get; set; }
-    }
 
-    public class UpdateUserRequest
-    {
-        public string FullName { get; set; } = string.Empty;
-        public Models.Enums.UserRole Role { get; set; }
-        public string? NewPassword { get; set; }
-    }
 }

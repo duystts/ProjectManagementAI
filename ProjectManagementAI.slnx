@@ -1,4 +1,7 @@
 <Solution>
   <Project Path="ProjectManagement.API/ProjectManagement.API.csproj" />
+  <Project Path="ProjectManagement.BLL/ProjectManagement.BLL.csproj" Id="7eeaf472-93b1-4df8-9e62-bea4fc5362b8" />
+  <Project Path="ProjectManagement.DAL/ProjectManagement.DAL.csproj" Id="7f961926-02f3-4b43-9e18-aaf26bc25c9e" />
+  <Project Path="ProjectManagement.Entities/ProjectManagement.Entities.csproj" Id="23c40231-24da-4703-9485-185544ff16db" />
   <Project Path="ProjectManagement.WinForms/ProjectManagement.WinForms.csproj" />
 </Solution>

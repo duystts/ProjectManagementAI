@@ -1,4 +1,4 @@
-using ProjectManagement.WinForms.Models;
+using ProjectManagement.Entities.Models.DTOs;
 
 namespace ProjectManagement.WinForms.Services
 {
