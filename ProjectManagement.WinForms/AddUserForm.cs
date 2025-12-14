@@ -1,4 +1,5 @@
-using ProjectManagement.WinForms.Models;
+using ProjectManagement.Entities.Models.DTOs;
+using ProjectManagement.Entities.Models.Enums;
 using ProjectManagement.WinForms.Services;
 
 namespace ProjectManagement.WinForms

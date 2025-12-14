@@ -1,7 +1,7 @@
 using System;
 using System.Windows.Forms;
 using Microsoft.Extensions.DependencyInjection;
-using ProjectManagement.WinForms.Models;
+using ProjectManagement.Entities.Models.DTOs;
 using ProjectManagement.WinForms.Services;
 
 namespace ProjectManagement.WinForms

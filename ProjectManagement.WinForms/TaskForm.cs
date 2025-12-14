@@ -1,4 +1,6 @@
-using ProjectManagement.WinForms.Models;
+using ProjectManagement.Entities.Models.DTOs;
+using ProjectManagement.Entities.Models.Enums;
+using TaskStatusEnum = ProjectManagement.Entities.Models.Enums.TaskStatus;
 using ProjectManagement.WinForms.Services;
 
 namespace ProjectManagement.WinForms
@@ -70,8 +72,8 @@ namespace ProjectManagement.WinForms
                     ProjectId = _projectId,
                     Title = txtTitle.Text.Trim(),
                     Description = txtDescription.Text.Trim(),
-                    Status = (Models.TaskStatus)cmbStatus.SelectedIndex,
-                    Priority = (Models.TaskPriority)cmbPriority.SelectedIndex,
+                    Status = (TaskStatusEnum)cmbStatus.SelectedIndex,
+                    Priority = (TaskPriority)cmbPriority.SelectedIndex,
                     CreatedAt = _task?.CreatedAt ?? DateTime.Now
                 };
 

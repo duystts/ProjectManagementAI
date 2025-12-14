@@ -8,6 +8,7 @@ namespace ProjectManagement.WinForms.Controls
         private Label lblId;
         private Button btnEdit;
         private Button btnDelete;
+        private Button btnAssign;
 
         protected override void Dispose(bool disposing)
         {
@@ -25,6 +26,7 @@ namespace ProjectManagement.WinForms.Controls
             lblId = new Label();
             btnEdit = new Button();
             btnDelete = new Button();
+            btnAssign = new Button();
             SuspendLayout();
             
             // TaskCardControl
@@ -68,28 +70,38 @@ namespace ProjectManagement.WinForms.Controls
             lblId.Click += Label_Click;
             
             // btnEdit
-            btnEdit.Location = new Point(160, 75);
+            btnEdit.Location = new Point(120, 75);
             btnEdit.Name = "btnEdit";
-            btnEdit.Size = new Size(40, 20);
+            btnEdit.Size = new Size(35, 20);
             btnEdit.TabIndex = 3;
             btnEdit.Text = "Edit";
             btnEdit.UseVisualStyleBackColor = true;
             btnEdit.Click += BtnEdit_Click;
             
             // btnDelete
-            btnDelete.Location = new Point(205, 75);
+            btnDelete.Location = new Point(160, 75);
             btnDelete.Name = "btnDelete";
-            btnDelete.Size = new Size(40, 20);
+            btnDelete.Size = new Size(35, 20);
             btnDelete.TabIndex = 4;
             btnDelete.Text = "Del";
             btnDelete.UseVisualStyleBackColor = true;
             btnDelete.Click += BtnDelete_Click;
+            
+            // btnAssign
+            btnAssign.Location = new Point(200, 75);
+            btnAssign.Name = "btnAssign";
+            btnAssign.Size = new Size(45, 20);
+            btnAssign.TabIndex = 5;
+            btnAssign.Text = "Assign";
+            btnAssign.UseVisualStyleBackColor = true;
+            btnAssign.Click += BtnAssign_Click;
             
             Controls.Add(lblTitle);
             Controls.Add(lblPriority);
             Controls.Add(lblId);
             Controls.Add(btnEdit);
             Controls.Add(btnDelete);
+            Controls.Add(btnAssign);
             ResumeLayout(false);
             PerformLayout();
         }

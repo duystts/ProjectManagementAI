@@ -23,4 +23,10 @@
     <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.2.1" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\ProjectManagement.Entities\ProjectManagement.Entities.csproj" />
+    <ProjectReference Include="..\ProjectManagement.DAL\ProjectManagement.DAL.csproj" />
+    <ProjectReference Include="..\ProjectManagement.BLL\ProjectManagement.BLL.csproj" />
+  </ItemGroup>
+
 </Project>
