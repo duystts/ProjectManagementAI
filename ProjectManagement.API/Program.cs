@@ -25,6 +25,10 @@ builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IProjectService, ProjectService>();
 builder.Services.AddScoped<ITaskService, TaskService>();
+builder.Services.AddHttpClient<EmbeddingService>();
+builder.Services.AddHttpClient<RagService>();
+builder.Services.AddScoped<EmbeddingService>();
+builder.Services.AddScoped<RagService>();
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>

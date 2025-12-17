@@ -203,6 +203,12 @@ namespace ProjectManagement.WinForms
             userForm.ShowDialog();
         }
 
+        private void btnAIAssistant_Click(object sender, EventArgs e)
+        {
+            var aiForm = Program.ServiceProvider?.GetRequiredService<AIAssistantForm>();
+            aiForm.ShowDialog();
+        }
+
         private async void DeleteProject(int projectId)
         {
             var result = MessageBox.Show("Are you sure you want to delete this project?", "Confirm Delete", MessageBoxButtons.YesNo, MessageBoxIcon.Question);

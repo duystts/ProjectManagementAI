@@ -6,6 +6,7 @@ namespace ProjectManagement.WinForms
         private FlowLayoutPanel flpProjects;
         private Button btnAddProject;
         private Button btnUserManager;
+        private Button btnAIAssistant;
         private Button btnLogout;
         private Label lblUserInfo;
         private TextBox txtSearch;
@@ -55,6 +56,19 @@ namespace ProjectManagement.WinForms
             btnUserManager.UseVisualStyleBackColor = true;
             btnUserManager.Visible = false;
             btnUserManager.Click += btnUserManager_Click;
+            // 
+            // btnAIAssistant
+            // 
+            btnAIAssistant = new Button();
+            btnAIAssistant.Font = new Font("Segoe UI", 10F, FontStyle.Bold);
+            btnAIAssistant.Location = new Point(374, 77);
+            btnAIAssistant.Margin = new Padding(3, 4, 3, 4);
+            btnAIAssistant.Name = "btnAIAssistant";
+            btnAIAssistant.Size = new Size(171, 47);
+            btnAIAssistant.TabIndex = 5;
+            btnAIAssistant.Text = "AI Assistant";
+            btnAIAssistant.UseVisualStyleBackColor = true;
+            btnAIAssistant.Click += btnAIAssistant_Click;
             // 
             // btnLogout
             // 
@@ -127,6 +141,7 @@ namespace ProjectManagement.WinForms
             Controls.Add(btnSearch);
             Controls.Add(btnAddProject);
             Controls.Add(btnUserManager);
+            Controls.Add(btnAIAssistant);
             Controls.Add(flpProjects);
             Margin = new Padding(3, 4, 3, 4);
             Name = "DashboardForm";

@@ -343,5 +343,29 @@ namespace ProjectManagement.WinForms.Services
             }
         }
 
+        public async Task<ChatResponse> ChatAsync(ChatRequest request)
+        {
+            UpdateAuthHeader();
+            var json = JsonSerializer.Serialize(request);
+            var content = new StringContent(json, System.Text.Encoding.UTF8, "application/json");
+            var response = await _httpClient.PostAsync($"{_baseUrl}/ai/chat", content);
+            response.EnsureSuccessStatusCode();
+            var responseJson = await response.Content.ReadAsStringAsync();
+            var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
+            return JsonSerializer.Deserialize<ChatResponse>(responseJson, options)!;
+        }
+
+        public async Task<int> AddKnowledgeAsync(string title, string content, int? projectId)
+        {
+            UpdateAuthHeader();
+            var request = new { Title = title, Content = content, ProjectId = projectId };
+            var json = JsonSerializer.Serialize(request);
+            var httpContent = new StringContent(json, System.Text.Encoding.UTF8, "application/json");
+            var response = await _httpClient.PostAsync($"{_baseUrl}/ai/knowledge", httpContent);
+            response.EnsureSuccessStatusCode();
+            var responseJson = await response.Content.ReadAsStringAsync();
+            return JsonSerializer.Deserialize<int>(responseJson);
+        }
+
     }
 }

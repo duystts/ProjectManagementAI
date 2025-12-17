@@ -14,6 +14,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\ProjectManagement.Entities\ProjectManagement.Entities.csproj" />
+    <ProjectReference Include="..\ProjectManagement.AI\ProjectManagement.AI.csproj" />
   </ItemGroup>
 
 </Project>
