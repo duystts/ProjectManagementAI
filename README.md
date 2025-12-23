@@ -1,37 +1,52 @@
 # ProjectManagementAI
 
-Ứng dụng quản lý dự án được xây dựng với ASP.NET Core Web API và Windows Forms.
+Ứng dụng quản lý dự án thông minh với ASP.NET Core Web API và Windows Forms, tích hợp AI để tìm kiếm và gợi ý tasks.
 
-## 🏗️ Kiến trúc hệ thống
+## 🏗️ Kiến trúc
 
-- **Backend**: ASP.NET Core Web API (.NET 10)
-- **Frontend**: Windows Forms Application (.NET 10)  
-- **Database**: SQL Server với Entity Framework Core
+- **API**: ASP.NET Core (.NET 10)
+- **Frontend**: Windows Forms (.NET 8)
+- **Database**: SQLite với Entity Framework Core
+- **Authentication**: JWT Bearer Token
+- **AI**: Google AI Embedding API
 
-## 📁 Cấu trúc dự án
+## 📁 Cấu trúc
 
-### ProjectManagement.API (Backend)
-- **Models**: Project, ProjectTask, TaskComment
-- **Controllers**: API endpoints cho Projects và Tasks
-- **Data**: Entity Framework DbContext
-- **Database**: Tự động tạo và migrate
+```
+ProjectManagementAI/
+├── ProjectManagement.API/          # Web API
+├── ProjectManagement.WinForms/     # Windows Forms UI
+├── ProjectManagement.Entities/     # Models & DTOs
+├── ProjectManagement.DAL/          # Data Access Layer
+└── ProjectManagement.BLL/          # Business Logic Layer
+```
 
-### ProjectManagement.WinForms (Frontend)
-- **Forms**: Dashboard và Task Management
-- **Controls**: ProjectCard và TaskCard components
-- **Services**: API communication service
-- **Models**: DTO classes
+## ⚙️ Cấu hình
 
-## 🚀 Cách chạy dự án
+### API Key (Bắt buộc)
 
-### 1. Chạy Backend API
+**Environment Variables:**
+```bash
+# Windows
+set GOOGLEAI__APIKEY=your_google_ai_api_key
+
+# Linux/Mac
+export GOOGLEAI__APIKEY=your_google_ai_api_key
+```
+
+### Database
+Database SQLite sẽ tự động tạo khi chạy lần đầu.
+
+## 🚀 Chạy ứng dụng
+
+### 1. Backend API
 ```bash
 cd ProjectManagement.API
 dotnet run
 ```
-API sẽ chạy tại: `https://localhost:7089`
+API: `https://localhost:7089`
 
-### 2. Chạy Frontend WinForms
+### 2. Frontend
 ```bash
 cd ProjectManagement.WinForms
 dotnet run
@@ -39,27 +54,39 @@ dotnet run
 
 ## 🎯 Tính năng
 
-- ✅ Xem danh sách projects
-- ✅ Xem tasks theo project (Kanban board)
-- ✅ Click events cho project và task cards
-- ✅ Thêm/sửa/xóa project (đang phát triển)
-- ✅ Thêm/sửa/xóa task (đang phát triển)
+- ✅ Đăng nhập/đăng ký người dùng
+- ✅ Quản lý projects (CRUD)
+- ✅ Quản lý tasks (Kanban board)
+- ✅ Quản lý người dùng (Admin)
+- ✅ Phân quyền theo role
+- ✅ JWT Authentication
+- ✅ **AI Search**: Tìm kiếm tasks thông minh
+- ✅ **AI Suggestions**: Gợi ý tasks liên quan
+
+## 🤖 Tính năng AI
+
+- **Semantic Search**: Tìm kiếm tasks theo nghĩa, không chỉ từ khóa
+- **Task Similarity**: Tìm tasks tương tự dựa trên nội dung
+- **Smart Suggestions**: Gợi ý tasks liên quan khi xem chi tiết
+
+## 👥 Roles
+
+- **Admin**: Toàn quyền
+- **Manager**: Quản lý projects/tasks
+- **Member**: Tạo/sửa tasks
+- **Viewer**: Chỉ xem
 
 ## 🔧 Công nghệ
 
-- .NET 10
-- Entity Framework Core
-- SQL Server
-- Windows Forms
-- System.Text.Json
+- .NET 8/10, EF Core, SQLite
+- JWT, BCrypt
+- Windows Forms, System.Text.Json
+- Google AI Embedding API
+- Vector Search với Cosine Similarity
 
-## 📝 Cấu hình
+## 🔒 Bảo mật
 
-Cập nhật connection string trong `appsettings.json`:
-```json
-{
-  "ConnectionStrings": {
-    "DefaultConnection": "Server=(localdb)\\mssqllocaldb;Database=ProjectManagementDB;Trusted_Connection=true;"
-  }
-}
-```
+- API keys đọc từ Environment Variables
+- Không commit sensitive data vào Git
+- JWT token authentication
+- Password hashing với BCrypt
