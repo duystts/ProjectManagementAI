@@ -27,11 +27,25 @@ public class EmbeddingService
         var content = new StringContent(json, System.Text.Encoding.UTF8, "application/json");
         
         var response = await _httpClient.PostAsync(
-            $"https://generativelanguage.googleapis.com/v1beta/models/text-embedding-004:embedContent?key={_apiKey}",
+            $"https://generativelanguage.googleapis.com/v1/models/text-embedding-004:embedContent?key={_apiKey}",
             content);
         
+        if (!response.IsSuccessStatusCode)
+        {
+            var errorContent = await response.Content.ReadAsStringAsync();
+            if (response.StatusCode == System.Net.HttpStatusCode.TooManyRequests)
+            {
+                // Return dummy embedding when quota exceeded
+                return new EmbeddingResult { Vector = new float[768] };
+            }
+            throw new Exception(errorContent);
+        }
+        
         var responseJson = await response.Content.ReadAsStringAsync();
-        var result = JsonSerializer.Deserialize<GoogleEmbeddingResponse>(responseJson);
+        var result = JsonSerializer.Deserialize<GoogleEmbeddingResponse>(
+            responseJson,
+            new JsonSerializerOptions { PropertyNameCaseInsensitive = true }
+        );
         
         return new EmbeddingResult
         {

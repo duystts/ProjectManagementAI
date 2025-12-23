@@ -45,7 +45,9 @@ public class RagService
         var queryEmbedding = await _embeddingService.GetEmbeddingAsync(request.Message);
         var relevantKnowledge = await FindRelevantKnowledgeAsync(queryEmbedding.Vector, request.ProjectId, request.TaskId);
         
-        var context = string.Join("\n\n", relevantKnowledge.Select(k => $"Title: {k.Title}\nContent: {k.Content}"));
+        var context = relevantKnowledge.Any()
+            ? string.Join("\n\n", relevantKnowledge.Select(k => $"Title: {k.Title}\nContent: {k.Content}"))
+            : "No relevant context found. Answer based on general knowledge.";
         var prompt = $"Context:\n{context}\n\nQuestion: {request.Message}\n\nAnswer based on the context above:";
 
         var apiRequest = new
@@ -57,15 +59,47 @@ public class RagService
         var content = new StringContent(json, System.Text.Encoding.UTF8, "application/json");
         
         var response = await _httpClient.PostAsync(
-            $"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={_apiKey}",
+            $"https://generativelanguage.googleapis.com/v1/models/gemini-2.5-flash:generateContent?key={_apiKey}",
             content);
         
+        if (!response.IsSuccessStatusCode)
+        {
+            var errorContent = await response.Content.ReadAsStringAsync();
+            if (response.StatusCode == System.Net.HttpStatusCode.TooManyRequests)
+            {
+                // Simple fallback response
+                var simpleResponse = request.Message.ToLower() switch
+                {
+                    var msg when msg.Contains("hi") || msg.Contains("hello") => "Hello! How can I help you with your project management?",
+                    var msg when msg.Contains("help") => "I can help you manage projects, tasks, and provide information. What do you need?",
+                    _ => $"I understand you're asking about: '{request.Message}'. AI service is temporarily unavailable, but I'm here to help with basic responses."
+                };
+                
+                return new ChatResponse
+                {
+                    Response = simpleResponse,
+                    Sources = relevantKnowledge.Select(k => k.Title).ToList()
+                };
+            }
+            throw new Exception(errorContent);
+        }
+        
         var responseJson = await response.Content.ReadAsStringAsync();
-        var result = JsonSerializer.Deserialize<GoogleGenerateResponse>(responseJson);
+        var result = JsonSerializer.Deserialize<GoogleGenerateResponse>(
+            responseJson,
+            new JsonSerializerOptions { PropertyNameCaseInsensitive = true }
+        );
+
+        var answer = result?.Candidates?
+            .FirstOrDefault()?
+            .Content?
+            .Parts?
+            .FirstOrDefault()?
+            .Text;
 
         return new ChatResponse
         {
-            Response = result?.Candidates?.FirstOrDefault()?.Content?.Parts?.FirstOrDefault()?.Text ?? "No response",
+            Response = answer ?? "No response",
             Sources = relevantKnowledge.Select(k => k.Title).ToList()
         };
     }

@@ -7,6 +7,7 @@ namespace ProjectManagement.WinForms
         private Button btnAddProject;
         private Button btnUserManager;
         private Button btnAIAssistant;
+        private Button btnChat;
         private Button btnLogout;
         private Label lblUserInfo;
         private TextBox txtSearch;
@@ -25,6 +26,7 @@ namespace ProjectManagement.WinForms
         {
             btnAddProject = new Button();
             btnUserManager = new Button();
+            btnChat = new Button();
             btnLogout = new Button();
             lblUserInfo = new Label();
             txtSearch = new TextBox();
@@ -70,6 +72,18 @@ namespace ProjectManagement.WinForms
             btnAIAssistant.UseVisualStyleBackColor = true;
             btnAIAssistant.Click += btnAIAssistant_Click;
             // 
+            // btnChat
+            // 
+            btnChat.Font = new Font("Segoe UI", 10F, FontStyle.Bold);
+            btnChat.Location = new Point(554, 77);
+            btnChat.Margin = new Padding(3, 4, 3, 4);
+            btnChat.Name = "btnChat";
+            btnChat.Size = new Size(100, 47);
+            btnChat.TabIndex = 6;
+            btnChat.Text = "💬 Chat";
+            btnChat.UseVisualStyleBackColor = true;
+            btnChat.Click += btnChat_Click;
+            // 
             // btnLogout
             // 
             btnLogout.Font = new Font("Segoe UI", 9F);
@@ -96,12 +110,12 @@ namespace ProjectManagement.WinForms
             // 
             txtSearch.BorderStyle = BorderStyle.FixedSingle;
             txtSearch.Font = new Font("Segoe UI", 11F);
-            txtSearch.Location = new Point(389, 77);
+            txtSearch.Location = new Point(14, 140);
             txtSearch.Margin = new Padding(3, 4, 3, 4);
             txtSearch.Multiline = true;
             txtSearch.Name = "txtSearch";
-            txtSearch.PlaceholderText = "Search...";
-            txtSearch.Size = new Size(429, 47);
+            txtSearch.PlaceholderText = "Search projects...";
+            txtSearch.Size = new Size(400, 35);
             txtSearch.TabIndex = 0;
             txtSearch.TextChanged += txtSearch_TextChanged;
             txtSearch.KeyDown += txtSearch_KeyDown;
@@ -109,10 +123,10 @@ namespace ProjectManagement.WinForms
             // btnSearch
             // 
             btnSearch.Font = new Font("Segoe UI", 12F);
-            btnSearch.Location = new Point(832, 77);
+            btnSearch.Location = new Point(425, 140);
             btnSearch.Margin = new Padding(3, 4, 3, 4);
             btnSearch.Name = "btnSearch";
-            btnSearch.Size = new Size(47, 47);
+            btnSearch.Size = new Size(47, 35);
             btnSearch.TabIndex = 2;
             btnSearch.Text = "🔍";
             btnSearch.UseVisualStyleBackColor = true;
@@ -122,10 +136,10 @@ namespace ProjectManagement.WinForms
             // 
             flpProjects.AutoScroll = true;
             flpProjects.FlowDirection = FlowDirection.TopDown;
-            flpProjects.Location = new Point(14, 158);
+            flpProjects.Location = new Point(14, 190);
             flpProjects.Margin = new Padding(3, 4, 3, 4);
             flpProjects.Name = "flpProjects";
-            flpProjects.Size = new Size(865, 562);
+            flpProjects.Size = new Size(865, 530);
             flpProjects.TabIndex = 5;
             flpProjects.WrapContents = false;
             flpProjects.Click += flpProjects_Click;
@@ -142,6 +156,7 @@ namespace ProjectManagement.WinForms
             Controls.Add(btnAddProject);
             Controls.Add(btnUserManager);
             Controls.Add(btnAIAssistant);
+            Controls.Add(btnChat);
             Controls.Add(flpProjects);
             Margin = new Padding(3, 4, 3, 4);
             Name = "DashboardForm";

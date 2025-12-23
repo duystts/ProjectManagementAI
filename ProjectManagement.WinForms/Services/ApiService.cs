@@ -367,5 +367,19 @@ namespace ProjectManagement.WinForms.Services
             return JsonSerializer.Deserialize<int>(responseJson);
         }
 
+        public async Task<string> SendChatMessageAsync(string message)
+        {
+            try
+            {
+                var request = new ChatRequest { Message = message };
+                var response = await ChatAsync(request);
+                return response.Response;
+            }
+            catch (Exception ex)
+            {
+                return $"Error: {ex.Message}";
+            }
+        }
+
     }
 }
