@@ -6,6 +6,9 @@ namespace ProjectManagement.WinForms
     public partial class AIAssistantForm : Form
     {
         private readonly ApiService _apiService;
+        private List<ProjectDto> _projects = new();
+        private List<ProjectTaskDto> _currentProjectTasks = new();
+        private static string _chatHistory = string.Empty;
 
         public AIAssistantForm(ApiService apiService)
         {
@@ -26,10 +29,13 @@ namespace ProjectManagement.WinForms
 
             try
             {
+                // Auto-embed project context if project is selected
+                await EmbedCurrentProjectContext();
+
                 var request = new ChatRequest
                 {
                     Message = message,
-                    ProjectId = (int?)cmbProject.SelectedValue,
+                    ProjectId = (cmbProject.SelectedItem as ProjectDto)?.Id,
                     TaskId = null
                 };
 
@@ -53,12 +59,38 @@ namespace ProjectManagement.WinForms
             }
         }
 
+        private async Task EmbedCurrentProjectContext()
+        {
+            if (cmbProject.SelectedItem is not ProjectDto selectedProject) return;
+
+            try
+            {
+                // Embed project info
+                var projectContent = $"Project: {selectedProject.Name}\nDescription: {selectedProject.Description}\nCreated: {selectedProject.CreatedAt}";
+                await _apiService.AddKnowledgeAsync($"Project: {selectedProject.Name}", projectContent, selectedProject.Id, null);
+
+                // Embed tasks for this project
+                foreach (var task in _currentProjectTasks)
+                {
+                    var taskContent = $"Task: {task.Title}\nDescription: {task.Description}\nStatus: {task.Status}\nPriority: {task.Priority}\nCreated: {task.CreatedAt}\nAssigned to: {task.AssignedUserName ?? "Unassigned"}\nProject: {selectedProject.Name}";
+                    await _apiService.AddKnowledgeAsync($"Task: {task.Title}", taskContent, selectedProject.Id, task.Id);
+                }
+            }
+            catch
+            {
+                // Ignore embedding errors - knowledge might already exist
+            }
+        }
+
         private void AppendMessage(string message, Color color)
         {
+            var formattedMessage = $"{DateTime.Now:HH:mm} - {message}\n\n";
+            _chatHistory += formattedMessage;
+            
             rtbChat.SelectionStart = rtbChat.TextLength;
             rtbChat.SelectionLength = 0;
             rtbChat.SelectionColor = color;
-            rtbChat.AppendText($"{DateTime.Now:HH:mm} - {message}\n\n");
+            rtbChat.AppendText(formattedMessage);
             rtbChat.SelectionColor = rtbChat.ForeColor;
             rtbChat.ScrollToCaret();
         }
@@ -73,14 +105,11 @@ namespace ProjectManagement.WinForms
 
             try
             {
-                var request = new
-                {
-                    Title = txtKnowledgeTitle.Text.Trim(),
-                    Content = txtKnowledgeContent.Text.Trim(),
-                    ProjectId = (int?)cmbProject.SelectedValue
-                };
-
-                var id = await _apiService.AddKnowledgeAsync(request.Title, request.Content, request.ProjectId);
+                var id = await _apiService.AddKnowledgeAsync(
+                    txtKnowledgeTitle.Text.Trim(), 
+                    txtKnowledgeContent.Text.Trim(), 
+                    (cmbProject.SelectedItem as ProjectDto)?.Id,
+                    null);
                 
                 MessageBox.Show($"Knowledge added successfully! ID: {id}", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 
@@ -97,15 +126,38 @@ namespace ProjectManagement.WinForms
         {
             try
             {
-                var projects = await _apiService.GetProjectsAsync();
-                cmbProject.DataSource = projects;
+                _projects = await _apiService.GetProjectsAsync();
+                cmbProject.DataSource = _projects;
                 cmbProject.DisplayMember = "Name";
                 cmbProject.ValueMember = "Id";
                 cmbProject.SelectedIndex = -1;
+                
+                // Restore chat history
+                if (!string.IsNullOrEmpty(_chatHistory))
+                {
+                    rtbChat.Text = _chatHistory;
+                    rtbChat.ScrollToCaret();
+                }
             }
             catch (Exception ex)
             {
                 MessageBox.Show($"Error loading projects: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private async void cmbProject_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            if (cmbProject.SelectedItem is ProjectDto selectedProject)
+            {
+                try
+                {
+                    _currentProjectTasks = await _apiService.GetTasksByProjectAsync(selectedProject.Id);
+                    AppendMessage($"Project selected: {selectedProject.Name} ({_currentProjectTasks.Count} tasks loaded)", Color.DarkBlue);
+                }
+                catch (Exception ex)
+                {
+                    AppendMessage($"Error loading project tasks: {ex.Message}", Color.Red);
+                }
             }
         }
 

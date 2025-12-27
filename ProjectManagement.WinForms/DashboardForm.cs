@@ -12,6 +12,7 @@ namespace ProjectManagement.WinForms
         private DateTime _lastProjectOpenTime = DateTime.MinValue;
         private int _lastProjectId = -1;
         private List<ProjectDto> _allProjects = new();
+        private static AIAssistantForm? _aiAssistantForm;
 
         public DashboardForm(ApiService apiService)
         {
@@ -43,15 +44,18 @@ namespace ProjectManagement.WinForms
                 case UserRole.Admin:
                     btnAddProject.Visible = true;
                     btnUserManager.Visible = true;
+                    btnEmbedData.Visible = true;
                     break;
                 case UserRole.Manager:
                     btnAddProject.Visible = true;
                     btnUserManager.Visible = false;
+                    btnEmbedData.Visible = false;
                     break;
                 case UserRole.Member:
                 case UserRole.Viewer:
                     btnAddProject.Visible = false;
                     btnUserManager.Visible = false;
+                    btnEmbedData.Visible = false;
                     break;
             }
         }
@@ -205,8 +209,19 @@ namespace ProjectManagement.WinForms
 
         private void btnAIAssistant_Click(object sender, EventArgs e)
         {
-            var aiForm = Program.ServiceProvider?.GetRequiredService<AIAssistantForm>();
-            aiForm.ShowDialog();
+            if (_aiAssistantForm == null || _aiAssistantForm.IsDisposed)
+            {
+                _aiAssistantForm = Program.ServiceProvider?.GetRequiredService<AIAssistantForm>();
+            }
+            
+            if (_aiAssistantForm.Visible)
+            {
+                _aiAssistantForm.BringToFront();
+            }
+            else
+            {
+                _aiAssistantForm.Show();
+            }
         }
 
         private void btnChat_Click(object sender, EventArgs e)
@@ -237,6 +252,27 @@ namespace ProjectManagement.WinForms
                 {
                     MessageBox.Show($"Error deleting project: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
+            }
+        }
+
+        private async void btnEmbedData_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                btnEmbedData.Enabled = false;
+                btnEmbedData.Text = "Embedding...";
+                
+                var result = await _apiService.EmbedAllDataAsync();
+                MessageBox.Show(result, "Embedding Complete", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error embedding data: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+            finally
+            {
+                btnEmbedData.Enabled = true;
+                btnEmbedData.Text = "🤖 Embed Data";
             }
         }
     }

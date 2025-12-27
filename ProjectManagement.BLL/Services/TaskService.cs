@@ -12,12 +12,14 @@ namespace ProjectManagement.BLL.Services
         private readonly ITaskRepository _taskRepository;
         private readonly IUserRepository _userRepository;
         private readonly IProjectRepository _projectRepository;
+        private readonly RagService _ragService;
 
-        public TaskService(ITaskRepository taskRepository, IUserRepository userRepository, IProjectRepository projectRepository)
+        public TaskService(ITaskRepository taskRepository, IUserRepository userRepository, IProjectRepository projectRepository, RagService ragService)
         {
             _taskRepository = taskRepository;
             _userRepository = userRepository;
             _projectRepository = projectRepository;
+            _ragService = ragService;
         }
 
         public async Task<IEnumerable<ProjectTaskDto>> GetTasksByProjectIdAsync(int projectId)
@@ -72,6 +74,15 @@ namespace ProjectManagement.BLL.Services
             };
 
             var createdTask = await _taskRepository.AddAsync(task);
+            
+            // Auto-embed new task
+            try
+            {
+                var project = await _projectRepository.GetByIdAsync(taskDto.ProjectId);
+                var taskContent = $"Task: {createdTask.Title}\nDescription: {createdTask.Description}\nStatus: {createdTask.Status}\nPriority: {createdTask.Priority}\nCreated: {createdTask.CreatedAt}\nProject: {project?.Name}";
+                await _ragService.AddKnowledgeAsync($"Task: {createdTask.Title}", taskContent, createdTask.ProjectId, createdTask.Id);
+            }
+            catch { /* Ignore embedding errors */ }
             
             return new ProjectTaskDto
             {

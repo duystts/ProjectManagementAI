@@ -355,10 +355,10 @@ namespace ProjectManagement.WinForms.Services
             return JsonSerializer.Deserialize<ChatResponse>(responseJson, options)!;
         }
 
-        public async Task<int> AddKnowledgeAsync(string title, string content, int? projectId)
+        public async Task<int> AddKnowledgeAsync(string title, string content, int? projectId, int? taskId = null)
         {
             UpdateAuthHeader();
-            var request = new { Title = title, Content = content, ProjectId = projectId };
+            var request = new { Title = title, Content = content, ProjectId = projectId, TaskId = taskId };
             var json = JsonSerializer.Serialize(request);
             var httpContent = new StringContent(json, System.Text.Encoding.UTF8, "application/json");
             var response = await _httpClient.PostAsync($"{_baseUrl}/ai/knowledge", httpContent);
@@ -374,6 +374,27 @@ namespace ProjectManagement.WinForms.Services
                 var request = new ChatRequest { Message = message };
                 var response = await ChatAsync(request);
                 return response.Response;
+            }
+            catch (Exception ex)
+            {
+                return $"Error: {ex.Message}";
+            }
+        }
+
+        public async Task<string> EmbedAllDataAsync()
+        {
+            UpdateAuthHeader();
+            try
+            {
+                var response = await _httpClient.PostAsync($"{_baseUrl}/ai/embed-all", null);
+                if (response.IsSuccessStatusCode)
+                {
+                    var responseJson = await response.Content.ReadAsStringAsync();
+                    var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
+                    var result = JsonSerializer.Deserialize<EmbedAllResponse>(responseJson, options);
+                    return result?.Message ?? "Embedding completed";
+                }
+                return "Failed to embed data";
             }
             catch (Exception ex)
             {

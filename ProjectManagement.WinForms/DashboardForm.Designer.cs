@@ -8,6 +8,7 @@ namespace ProjectManagement.WinForms
         private Button btnUserManager;
         private Button btnAIAssistant;
         private Button btnChat;
+        private Button btnEmbedData;
         private Button btnLogout;
         private Label lblUserInfo;
         private TextBox txtSearch;
@@ -27,6 +28,7 @@ namespace ProjectManagement.WinForms
             btnAddProject = new Button();
             btnUserManager = new Button();
             btnChat = new Button();
+            btnEmbedData = new Button();
             btnLogout = new Button();
             lblUserInfo = new Label();
             txtSearch = new TextBox();
@@ -83,6 +85,18 @@ namespace ProjectManagement.WinForms
             btnChat.Text = "💬 Chat";
             btnChat.UseVisualStyleBackColor = true;
             btnChat.Click += btnChat_Click;
+            // 
+            // btnEmbedData
+            // 
+            btnEmbedData.Font = new Font("Segoe UI", 9F, FontStyle.Bold);
+            btnEmbedData.Location = new Point(664, 77);
+            btnEmbedData.Margin = new Padding(3, 4, 3, 4);
+            btnEmbedData.Name = "btnEmbedData";
+            btnEmbedData.Size = new Size(120, 47);
+            btnEmbedData.TabIndex = 7;
+            btnEmbedData.Text = "🤖 Embed Data";
+            btnEmbedData.UseVisualStyleBackColor = true;
+            btnEmbedData.Click += btnEmbedData_Click;
             // 
             // btnLogout
             // 
@@ -157,6 +171,7 @@ namespace ProjectManagement.WinForms
             Controls.Add(btnUserManager);
             Controls.Add(btnAIAssistant);
             Controls.Add(btnChat);
+            Controls.Add(btnEmbedData);
             Controls.Add(flpProjects);
             Margin = new Padding(3, 4, 3, 4);
             Name = "DashboardForm";

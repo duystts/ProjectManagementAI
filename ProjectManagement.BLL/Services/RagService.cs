@@ -24,6 +24,19 @@ public class RagService
 
     public async Task<int> AddKnowledgeAsync(string title, string content, int? projectId = null, int? taskId = null)
     {
+        // Check if knowledge already exists
+        var existingKnowledge = await _context.Knowledge
+            .FirstOrDefaultAsync(k => k.Title == title && k.ProjectId == projectId && k.TaskId == taskId);
+        
+        if (existingKnowledge != null)
+        {
+            // Update existing knowledge
+            existingKnowledge.Content = content;
+            existingKnowledge.Embedding = JsonSerializer.Serialize((await _embeddingService.GetEmbeddingAsync(content)).Vector);
+            await _context.SaveChangesAsync();
+            return existingKnowledge.Id;
+        }
+
         var embedding = await _embeddingService.GetEmbeddingAsync(content);
         
         var knowledge = new Knowledge
@@ -38,6 +51,49 @@ public class RagService
         _context.Knowledge.Add(knowledge);
         await _context.SaveChangesAsync();
         return knowledge.Id;
+    }
+
+    public async Task<EmbedAllResponse> EmbedAllDataAsync()
+    {
+        var projectsEmbedded = 0;
+        var tasksEmbedded = 0;
+
+        // Embed all projects
+        var projects = await _context.Projects.ToListAsync();
+        foreach (var project in projects)
+        {
+            var existingKnowledge = await _context.Knowledge
+                .FirstOrDefaultAsync(k => k.ProjectId == project.Id && k.TaskId == null);
+            
+            if (existingKnowledge == null)
+            {
+                var content = $"Project: {project.Name}\nDescription: {project.Description}";
+                await AddKnowledgeAsync($"Project: {project.Name}", content, project.Id);
+                projectsEmbedded++;
+            }
+        }
+
+        // Embed all tasks
+        var tasks = await _context.ProjectTasks.Include(t => t.Project).Include(t => t.AssignedUser).ToListAsync();
+        foreach (var task in tasks)
+        {
+            var existingKnowledge = await _context.Knowledge
+                .FirstOrDefaultAsync(k => k.TaskId == task.Id);
+            
+            if (existingKnowledge == null)
+            {
+                var content = $"Task: {task.Title}\nDescription: {task.Description}\nProject: {task.Project?.Name}\nStatus: {task.Status}\nPriority: {task.Priority}\nCreated: {task.CreatedAt}\nAssigned to: {task.AssignedUser?.FullName ?? "Unassigned"}";
+                await AddKnowledgeAsync($"Task: {task.Title}", content, task.ProjectId, task.Id);
+                tasksEmbedded++;
+            }
+        }
+
+        return new EmbedAllResponse
+        {
+            ProjectsEmbedded = projectsEmbedded,
+            TasksEmbedded = tasksEmbedded,
+            Message = $"Successfully embedded {projectsEmbedded} projects and {tasksEmbedded} tasks"
+        };
     }
 
     public async Task<ChatResponse> ChatAsync(ChatRequest request)

@@ -88,6 +88,7 @@ namespace ProjectManagement.WinForms
             cmbProject.Name = "cmbProject";
             cmbProject.Size = new Size(200, 28);
             cmbProject.TabIndex = 4;
+            cmbProject.SelectedIndexChanged += cmbProject_SelectedIndexChanged;
             // 
             // gbChat
             // 
