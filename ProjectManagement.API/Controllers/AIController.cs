@@ -30,6 +30,13 @@ namespace ProjectManagement.API.Controllers
             var id = await _ragService.AddKnowledgeAsync(request.Title, request.Content, request.ProjectId, request.TaskId);
             return Ok(id);
         }
+
+        [HttpPost("embed-all")]
+        public async Task<ActionResult<EmbedAllResponse>> EmbedAllData()
+        {
+            var result = await _ragService.EmbedAllDataAsync();
+            return Ok(result);
+        }
     }
 
     public class AddKnowledgeRequest
@@ -38,5 +45,12 @@ namespace ProjectManagement.API.Controllers
         public string Content { get; set; } = string.Empty;
         public int? ProjectId { get; set; }
         public int? TaskId { get; set; }
+    }
+
+    public class EmbedAllResponse
+    {
+        public int ProjectsEmbedded { get; set; }
+        public int TasksEmbedded { get; set; }
+        public string Message { get; set; } = string.Empty;
     }
 }
