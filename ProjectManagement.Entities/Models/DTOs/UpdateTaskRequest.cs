@@ -8,6 +8,7 @@ namespace ProjectManagement.Entities.Models.DTOs
         public string Title { get; set; } = string.Empty;
         public string Description { get; set; } = string.Empty;
         public TaskPriority Priority { get; set; }
+        public DateTime? Deadline { get; set; }
         public TaskStatusEnum Status { get; set; }
     }
 

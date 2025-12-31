@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using ProjectManagement.DAL.Data;
 
@@ -11,9 +12,11 @@ using ProjectManagement.DAL.Data;
 namespace ProjectManagement.DAL.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251231095511_AddDeadlineColumn")]
+    partial class AddDeadlineColumn
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -127,47 +130,6 @@ namespace ProjectManagement.DAL.Migrations
                     b.ToTable("ProjectTasks");
                 });
 
-            modelBuilder.Entity("ProjectManagement.Entities.Models.TaskAttachment", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("FileName")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("FilePath")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<long>("FileSize")
-                        .HasColumnType("bigint");
-
-                    b.Property<string>("FileType")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("TaskId")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime>("UploadedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int>("UploadedByUserId")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("TaskId");
-
-                    b.HasIndex("UploadedByUserId");
-
-                    b.ToTable("TaskAttachments");
-                });
-
             modelBuilder.Entity("ProjectManagement.Entities.Models.TaskComment", b =>
                 {
                     b.Property<int>("Id")
@@ -259,25 +221,6 @@ namespace ProjectManagement.DAL.Migrations
                     b.Navigation("Project");
                 });
 
-            modelBuilder.Entity("ProjectManagement.Entities.Models.TaskAttachment", b =>
-                {
-                    b.HasOne("ProjectManagement.Entities.Models.ProjectTask", "Task")
-                        .WithMany("TaskAttachments")
-                        .HasForeignKey("TaskId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("ProjectManagement.Entities.Models.User", "UploadedBy")
-                        .WithMany()
-                        .HasForeignKey("UploadedByUserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Task");
-
-                    b.Navigation("UploadedBy");
-                });
-
             modelBuilder.Entity("ProjectManagement.Entities.Models.TaskComment", b =>
                 {
                     b.HasOne("ProjectManagement.Entities.Models.ProjectTask", "ProjectTask")
@@ -296,8 +239,6 @@ namespace ProjectManagement.DAL.Migrations
 
             modelBuilder.Entity("ProjectManagement.Entities.Models.ProjectTask", b =>
                 {
-                    b.Navigation("TaskAttachments");
-
                     b.Navigation("TaskComments");
                 });
 #pragma warning restore 612, 618

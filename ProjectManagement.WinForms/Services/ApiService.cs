@@ -152,7 +152,8 @@ namespace ProjectManagement.WinForms.Services
                     ProjectId = task.ProjectId,
                     Title = task.Title,
                     Description = task.Description,
-                    Priority = task.Priority
+                    Priority = task.Priority,
+                    Deadline = task.Deadline
                 };
                 
                 var json = JsonSerializer.Serialize(request);
@@ -183,6 +184,7 @@ namespace ProjectManagement.WinForms.Services
                     Title = task.Title,
                     Description = task.Description,
                     Priority = task.Priority,
+                    Deadline = task.Deadline,
                     Status = task.Status
                 };
                 
@@ -399,6 +401,83 @@ namespace ProjectManagement.WinForms.Services
             catch (Exception ex)
             {
                 return $"Error: {ex.Message}";
+            }
+        }
+
+        // Attachment methods
+        public async Task<List<TaskAttachmentDto>> GetTaskAttachmentsAsync(int taskId)
+        {
+            UpdateAuthHeader();
+            try
+            {
+                var response = await _httpClient.GetAsync($"{_baseUrl}/attachments/task/{taskId}");
+                if (response.IsSuccessStatusCode)
+                {
+                    var json = await response.Content.ReadAsStringAsync();
+                    var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
+                    return JsonSerializer.Deserialize<List<TaskAttachmentDto>>(json, options) ?? new List<TaskAttachmentDto>();
+                }
+                return new List<TaskAttachmentDto>();
+            }
+            catch
+            {
+                return new List<TaskAttachmentDto>();
+            }
+        }
+
+        public async Task<bool> UploadAttachmentAsync(int taskId, string filePath)
+        {
+            UpdateAuthHeader();
+            try
+            {
+                using var form = new MultipartFormDataContent();
+                using var fileStream = File.OpenRead(filePath);
+                using var fileContent = new StreamContent(fileStream);
+                
+                fileContent.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("application/octet-stream");
+                form.Add(fileContent, "file", Path.GetFileName(filePath));
+                form.Add(new StringContent(taskId.ToString()), "taskId");
+
+                var response = await _httpClient.PostAsync($"{_baseUrl}/attachments/upload", form);
+                return response.IsSuccessStatusCode;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        public async Task<bool> DeleteAttachmentAsync(int attachmentId)
+        {
+            UpdateAuthHeader();
+            try
+            {
+                var response = await _httpClient.DeleteAsync($"{_baseUrl}/attachments/{attachmentId}");
+                return response.IsSuccessStatusCode;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        public async Task<bool> DownloadAttachmentAsync(int attachmentId, string savePath)
+        {
+            UpdateAuthHeader();
+            try
+            {
+                var response = await _httpClient.GetAsync($"{_baseUrl}/attachments/download/{attachmentId}");
+                if (response.IsSuccessStatusCode)
+                {
+                    var fileBytes = await response.Content.ReadAsByteArrayAsync();
+                    await File.WriteAllBytesAsync(savePath, fileBytes);
+                    return true;
+                }
+                return false;
+            }
+            catch
+            {
+                return false;
             }
         }
 

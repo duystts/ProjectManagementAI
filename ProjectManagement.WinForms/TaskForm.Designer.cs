@@ -11,6 +11,8 @@ namespace ProjectManagement.WinForms
         private ComboBox cmbStatus;
         private Label lblPriority;
         private ComboBox cmbPriority;
+        private Label lblDeadline;
+        private DateTimePicker dtpDeadline;
         private Button btnSave;
         private Button btnCancel;
         private Button btnDelete;
@@ -34,6 +36,8 @@ namespace ProjectManagement.WinForms
             this.cmbStatus = new ComboBox();
             this.lblPriority = new Label();
             this.cmbPriority = new ComboBox();
+            this.lblDeadline = new Label();
+            this.dtpDeadline = new DateTimePicker();
             this.btnSave = new Button();
             this.btnCancel = new Button();
             this.btnDelete = new Button();
@@ -98,20 +102,38 @@ namespace ProjectManagement.WinForms
             this.cmbPriority.Size = new Size(170, 23);
             this.cmbPriority.TabIndex = 7;
             
+            // lblDeadline
+            this.lblDeadline.AutoSize = true;
+            this.lblDeadline.Location = new Point(12, 235);
+            this.lblDeadline.Name = "lblDeadline";
+            this.lblDeadline.Size = new Size(56, 15);
+            this.lblDeadline.TabIndex = 8;
+            this.lblDeadline.Text = "Deadline:";
+
+            // dtpDeadline
+            this.dtpDeadline.Format = DateTimePickerFormat.Custom;
+            this.dtpDeadline.CustomFormat = "dd/MM/yyyy HH:mm";
+            this.dtpDeadline.Location = new Point(12, 253);
+            this.dtpDeadline.Name = "dtpDeadline";
+            this.dtpDeadline.Size = new Size(170, 23);
+            this.dtpDeadline.TabIndex = 9;
+            this.dtpDeadline.ShowCheckBox = true;
+            this.dtpDeadline.Checked = false;
+
             // btnSave
-            this.btnSave.Location = new Point(216, 245);
+            this.btnSave.Location = new Point(216, 295);
             this.btnSave.Name = "btnSave";
             this.btnSave.Size = new Size(75, 23);
-            this.btnSave.TabIndex = 8;
+            this.btnSave.TabIndex = 10;
             this.btnSave.Text = "Save";
             this.btnSave.UseVisualStyleBackColor = true;
             this.btnSave.Click += new EventHandler(this.btnSave_Click);
             
             // btnCancel
-            this.btnCancel.Location = new Point(297, 245);
+            this.btnCancel.Location = new Point(297, 295);
             this.btnCancel.Name = "btnCancel";
             this.btnCancel.Size = new Size(75, 23);
-            this.btnCancel.TabIndex = 9;
+            this.btnCancel.TabIndex = 11;
             this.btnCancel.Text = "Cancel";
             this.btnCancel.UseVisualStyleBackColor = true;
             this.btnCancel.Click += new EventHandler(this.btnCancel_Click);
@@ -119,7 +141,9 @@ namespace ProjectManagement.WinForms
             // TaskForm
             this.AutoScaleDimensions = new SizeF(7F, 15F);
             this.AutoScaleMode = AutoScaleMode.Font;
-            this.ClientSize = new Size(384, 281);
+            this.ClientSize = new Size(384, 331);
+            this.Controls.Add(this.dtpDeadline);
+            this.Controls.Add(this.lblDeadline);
             this.Controls.Add(this.btnCancel);
             this.Controls.Add(this.btnSave);
             this.Controls.Add(this.cmbPriority);

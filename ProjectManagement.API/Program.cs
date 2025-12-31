@@ -25,6 +25,7 @@ builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IProjectService, ProjectService>();
 builder.Services.AddScoped<ITaskService, TaskService>();
+builder.Services.AddScoped<IAttachmentService, AttachmentService>();
 builder.Services.AddHttpClient<EmbeddingService>();
 builder.Services.AddHttpClient<RagService>();
 builder.Services.AddScoped<EmbeddingService>();

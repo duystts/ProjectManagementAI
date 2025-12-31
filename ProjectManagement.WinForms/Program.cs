@@ -40,6 +40,7 @@ namespace ProjectManagement.WinForms
                     services.AddTransient<ResetPasswordForm>();
                     services.AddTransient<AIAssistantForm>();
                     services.AddTransient<ChatForm>();
+                    services.AddTransient<AttachmentForm>();
                     services.AddTransient<Form1>();
                 });
     }

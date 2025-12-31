@@ -19,6 +19,8 @@ namespace ProjectManagement.Entities.Models
 
         public TaskPriority Priority { get; set; }
 
+        public DateTime? Deadline { get; set; }
+
         public DateTime CreatedAt { get; set; }
 
         [ForeignKey("Project")]
@@ -32,5 +34,7 @@ namespace ProjectManagement.Entities.Models
         public User? AssignedUser { get; set; }
 
         public ICollection<TaskComment> TaskComments { get; set; } = new List<TaskComment>();
+
+        public ICollection<TaskAttachment> TaskAttachments { get; set; } = new List<TaskAttachment>();
     }
 }

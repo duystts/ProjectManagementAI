@@ -36,7 +36,8 @@ namespace ProjectManagement.API.Controllers
                 ProjectId = request.ProjectId,
                 Title = request.Title,
                 Description = request.Description,
-                Priority = request.Priority
+                Priority = request.Priority,
+                Deadline = request.Deadline
             };
 
             var result = await _taskService.CreateTaskAsync(taskDto);
@@ -67,6 +68,7 @@ namespace ProjectManagement.API.Controllers
                 Title = request.Title,
                 Description = request.Description,
                 Priority = request.Priority,
+                Deadline = request.Deadline,
                 Status = request.Status
             };
 

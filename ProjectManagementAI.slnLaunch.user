@@ -4,7 +4,8 @@
     "Projects": [
       {
         "Path": "ProjectManagement.API\\ProjectManagement.API.csproj",
-        "Action": "Start"
+        "Action": "Start",
+        "DebugTarget": "http"
       },
       {
         "Path": "ProjectManagement.WinForms\\ProjectManagement.WinForms.csproj",
