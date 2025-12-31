@@ -4,7 +4,7 @@ namespace ProjectManagement.WinForms
     {
         private System.ComponentModel.IContainer components = null;
         private TableLayoutPanel tableLayoutPanel;
-        private FlowLayoutPanel flpTodo, flpProgress, flpDone;
+        private FlowLayoutPanel flpTodo, flpProgress, flpPendingReview, flpDone;
         private Button btnAddTask;
         private Button btnBack;
 
@@ -22,23 +22,27 @@ namespace ProjectManagement.WinForms
             tableLayoutPanel = new TableLayoutPanel();
             flpTodo = new FlowLayoutPanel();
             flpProgress = new FlowLayoutPanel();
+            flpPendingReview = new FlowLayoutPanel();
             flpDone = new FlowLayoutPanel();
             btnAddTask = new Button();
             btnBack = new Button();
             
             var lblTodo = new Label();
             var lblProgress = new Label();
+            var lblPendingReview = new Label();
             var lblDone = new Label();
             
             SuspendLayout();
             
             // tableLayoutPanel
-            tableLayoutPanel.ColumnCount = 3;
-            tableLayoutPanel.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 33.33F));
-            tableLayoutPanel.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 33.33F));
-            tableLayoutPanel.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 33.34F));
-            tableLayoutPanel.Location = new Point(0, 50);
-            tableLayoutPanel.Size = new Size(1000, 550);
+            tableLayoutPanel.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
+            tableLayoutPanel.ColumnCount = 4;
+            tableLayoutPanel.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 25F));
+            tableLayoutPanel.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 25F));
+            tableLayoutPanel.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 25F));
+            tableLayoutPanel.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 25F));
+            tableLayoutPanel.Location = new Point(12, 50);
+            tableLayoutPanel.Size = new Size(1076, 538); // ClientSize.Width - 24, ClientSize.Height - 62
             tableLayoutPanel.RowCount = 2;
             tableLayoutPanel.RowStyles.Add(new RowStyle(SizeType.Absolute, 40F));
             tableLayoutPanel.RowStyles.Add(new RowStyle(SizeType.Percent, 100F));
@@ -55,6 +59,12 @@ namespace ProjectManagement.WinForms
             lblProgress.TextAlign = ContentAlignment.MiddleCenter;
             lblProgress.Dock = DockStyle.Fill;
             lblProgress.BackColor = Color.LightBlue;
+
+            lblPendingReview.Text = "PENDING REVIEW";
+            lblPendingReview.Font = new Font("Segoe UI", 12F, FontStyle.Bold);
+            lblPendingReview.TextAlign = ContentAlignment.MiddleCenter;
+            lblPendingReview.Dock = DockStyle.Fill;
+            lblPendingReview.BackColor = Color.Khaki;
             
             lblDone.Text = "DONE";
             lblDone.Font = new Font("Segoe UI", 12F, FontStyle.Bold);
@@ -74,6 +84,12 @@ namespace ProjectManagement.WinForms
             flpProgress.FlowDirection = FlowDirection.TopDown;
             flpProgress.WrapContents = false;
             flpProgress.BackColor = Color.FromArgb(240, 248, 255);
+
+            flpPendingReview.Dock = DockStyle.Fill;
+            flpPendingReview.AutoScroll = true;
+            flpPendingReview.FlowDirection = FlowDirection.TopDown;
+            flpPendingReview.WrapContents = false;
+            flpPendingReview.BackColor = Color.FromArgb(255, 255, 224); // LightYellow
             
             flpDone.Dock = DockStyle.Fill;
             flpDone.AutoScroll = true;
@@ -84,10 +100,12 @@ namespace ProjectManagement.WinForms
             // Add controls to table
             tableLayoutPanel.Controls.Add(lblTodo, 0, 0);
             tableLayoutPanel.Controls.Add(lblProgress, 1, 0);
-            tableLayoutPanel.Controls.Add(lblDone, 2, 0);
+            tableLayoutPanel.Controls.Add(lblPendingReview, 2, 0);
+            tableLayoutPanel.Controls.Add(lblDone, 3, 0);
             tableLayoutPanel.Controls.Add(flpTodo, 0, 1);
             tableLayoutPanel.Controls.Add(flpProgress, 1, 1);
-            tableLayoutPanel.Controls.Add(flpDone, 2, 1);
+            tableLayoutPanel.Controls.Add(flpPendingReview, 2, 1);
+            tableLayoutPanel.Controls.Add(flpDone, 3, 1);
             
             // btnAddTask
             btnAddTask.Location = new Point(12, 12);
@@ -110,7 +128,7 @@ namespace ProjectManagement.WinForms
             // Form1
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(1000, 600);
+            ClientSize = new Size(1100, 600);
             Controls.Add(btnAddTask);
             Controls.Add(btnBack);
             Controls.Add(tableLayoutPanel);

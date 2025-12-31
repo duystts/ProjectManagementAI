@@ -25,6 +25,7 @@ namespace ProjectManagement.WinForms
             btnSave.Text = "Create";
             cmbStatus.SelectedIndex = 0; // Todo
             cmbPriority.SelectedIndex = 1; // Medium
+            dtpDeadline.Value = DateTime.Now;
         }
 
         public void LoadTask(ProjectTaskDto task)
@@ -37,13 +38,23 @@ namespace ProjectManagement.WinForms
             cmbStatus.SelectedIndex = (int)_task.Status;
             cmbPriority.SelectedIndex = (int)_task.Priority;
 
+            if (_task.Deadline.HasValue)
+            {
+                dtpDeadline.Value = _task.Deadline.Value;
+                dtpDeadline.Checked = true;
+            }
+            else
+            {
+                dtpDeadline.Checked = false;
+            }
+
             this.Text = "Edit Task";
             btnSave.Text = "Update";
         }
 
         private void InitializeComboBoxes()
         {
-            cmbStatus.Items.AddRange(new[] { "Todo", "InProgress", "Done" });
+            cmbStatus.Items.AddRange(new[] { "Todo", "InProgress", "PendingReview", "Done" });
             cmbPriority.Items.AddRange(new[] { "Low", "Medium", "High" });
         }
 
@@ -62,6 +73,21 @@ namespace ProjectManagement.WinForms
                 return;
             }
 
+            if (dtpDeadline.Checked)
+            {
+                // Remove seconds for comparison to avoid "just passed" errors
+                var selectedTime = dtpDeadline.Value;
+                var now = DateTime.Now;
+                var selectedNoSeconds = new DateTime(selectedTime.Year, selectedTime.Month, selectedTime.Day, selectedTime.Hour, selectedTime.Minute, 0);
+                var nowNoSeconds = new DateTime(now.Year, now.Month, now.Day, now.Hour, now.Minute, 0);
+
+                if (selectedNoSeconds < nowNoSeconds)
+                {
+                    MessageBox.Show($"Deadline ({selectedTime:dd/MM/yyyy HH:mm}) cannot be in the past.", "Validation Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return;
+                }
+            }
+
             try
             {
                 btnSave.Enabled = false;
@@ -74,6 +100,7 @@ namespace ProjectManagement.WinForms
                     Description = txtDescription.Text.Trim(),
                     Status = (TaskStatusEnum)cmbStatus.SelectedIndex,
                     Priority = (TaskPriority)cmbPriority.SelectedIndex,
+                    Deadline = dtpDeadline.Checked ? dtpDeadline.Value : null,
                     CreatedAt = _task?.CreatedAt ?? DateTime.Now
                 };
 

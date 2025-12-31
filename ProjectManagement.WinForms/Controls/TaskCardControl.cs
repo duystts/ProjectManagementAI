@@ -1,6 +1,8 @@
 using ProjectManagement.Entities.Models.DTOs;
 using ProjectManagement.Entities.Models.Enums;
+using TaskStatusEnum = ProjectManagement.Entities.Models.Enums.TaskStatus;
 using ProjectManagement.WinForms.Services;
+using System.Drawing.Drawing2D;
 
 namespace ProjectManagement.WinForms.Controls
 {
@@ -13,6 +15,8 @@ namespace ProjectManagement.WinForms.Controls
         public event Action<int>? OnUnassignTask;
         
         private ProjectTaskDto? _taskData;
+        private System.Windows.Forms.Timer? _deadlineTimer;
+        private int _radius = 10;
         
         [System.ComponentModel.DesignerSerializationVisibility(System.ComponentModel.DesignerSerializationVisibility.Hidden)]
         public ProjectTaskDto? TaskData
@@ -29,7 +33,56 @@ namespace ProjectManagement.WinForms.Controls
         public TaskCardControl()
         {
             InitializeComponent();
+            
+            // Remove default border style
+            this.BorderStyle = BorderStyle.None;
+            this.Padding = new Padding(5);
+
             ConfigureButtonsByRole();
+            InitializeTimer();
+        }
+
+        private void InitializeTimer()
+        {
+            _deadlineTimer = new System.Windows.Forms.Timer();
+            _deadlineTimer.Interval = 30000; // 30 seconds
+            _deadlineTimer.Tick += DeadlineTimer_Tick;
+            _deadlineTimer.Start();
+        }
+
+        private void DeadlineTimer_Tick(object? sender, EventArgs e)
+        {
+            if (_taskData != null && _taskData.Deadline.HasValue && _taskData.Status != TaskStatusEnum.Done)
+            {
+                // Check if status changed (deadline just passed)
+                bool isOverdue = _taskData.Deadline.Value < DateTime.Now;
+                
+                // Update label color
+                if (isOverdue)
+                {
+                    lblDeadline.ForeColor = Color.Red;
+                }
+
+                // Always invalidate to ensure border is correct
+                this.Invalidate();
+            }
+        }
+
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                if (_deadlineTimer != null)
+                {
+                    _deadlineTimer.Stop();
+                    _deadlineTimer.Dispose();
+                }
+                if (components != null)
+                {
+                    components.Dispose();
+                }
+            }
+            base.Dispose(disposing);
         }
 
         private void ConfigureButtonsByRole()
@@ -117,6 +170,24 @@ namespace ProjectManagement.WinForms.Controls
                 lblTitle.Text += $" (Assigned: {task.AssignedUserName})";
             }
 
+            // Show Deadline
+            if (task.Deadline.HasValue)
+            {
+                lblDeadline.Text = $"Due: {task.Deadline.Value:g}";
+                if (task.Deadline.Value < DateTime.Now && task.Status != TaskStatusEnum.Done)
+                {
+                    lblDeadline.ForeColor = Color.Red;
+                }
+                else
+                {
+                    lblDeadline.ForeColor = Color.Gray;
+                }
+            }
+            else
+            {
+                lblDeadline.Text = "";
+            }
+
             // Debug info
             System.Diagnostics.Debug.WriteLine($"Task {task.Id}: AssignedUserId={task.AssignedUserId}, AssignedUserName={task.AssignedUserName}");
             System.Diagnostics.Debug.WriteLine($"Current User: {AuthService.CurrentUser?.Username}, Role: {AuthService.CurrentUser?.Role}");
@@ -141,6 +212,48 @@ namespace ProjectManagement.WinForms.Controls
 
             // Add context menu for assign/unassign
             AddContextMenu();
+            
+            // Trigger repaint for border
+            this.Invalidate();
+        }
+
+        protected override void OnPaint(PaintEventArgs e)
+        {
+            base.OnPaint(e);
+
+            e.Graphics.SmoothingMode = SmoothingMode.AntiAlias;
+
+            Color borderColor = Color.Gray;
+            int borderWidth = 1;
+
+            if (_taskData != null && _taskData.Deadline.HasValue && _taskData.Deadline.Value < DateTime.Now && _taskData.Status != TaskStatusEnum.Done)
+            {
+                borderColor = Color.Red;
+                borderWidth = 2;
+            }
+
+            using (GraphicsPath path = GetRoundedPath(ClientRectangle, _radius))
+            {
+                this.Region = new Region(path);
+                using (Pen pen = new Pen(borderColor, borderWidth))
+                {
+                    e.Graphics.DrawPath(pen, path);
+                }
+            }
+        }
+
+        private GraphicsPath GetRoundedPath(Rectangle rect, int radius)
+        {
+            GraphicsPath path = new GraphicsPath();
+            float curveSize = radius * 2F;
+
+            path.StartFigure();
+            path.AddArc(rect.X, rect.Y, curveSize, curveSize, 180, 90);
+            path.AddArc(rect.Right - curveSize, rect.Y, curveSize, curveSize, 270, 90);
+            path.AddArc(rect.Right - curveSize, rect.Bottom - curveSize, curveSize, curveSize, 0, 90);
+            path.AddArc(rect.X, rect.Bottom - curveSize, curveSize, curveSize, 90, 90);
+            path.CloseFigure();
+            return path;
         }
 
         private void AddContextMenu()

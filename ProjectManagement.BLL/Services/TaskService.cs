@@ -32,6 +32,7 @@ namespace ProjectManagement.BLL.Services
                 Description = t.Description,
                 Status = t.Status,
                 Priority = t.Priority,
+                Deadline = t.Deadline,
                 CreatedAt = t.CreatedAt,
                 ProjectId = t.ProjectId,
                 AssignedUserId = t.AssignedUserId,
@@ -51,6 +52,7 @@ namespace ProjectManagement.BLL.Services
                 Description = task.Description,
                 Status = task.Status,
                 Priority = task.Priority,
+                Deadline = task.Deadline,
                 CreatedAt = task.CreatedAt,
                 ProjectId = task.ProjectId,
                 AssignedUserId = task.AssignedUserId,
@@ -69,6 +71,7 @@ namespace ProjectManagement.BLL.Services
                 Title = taskDto.Title,
                 Description = taskDto.Description,
                 Priority = taskDto.Priority,
+                Deadline = taskDto.Deadline,
                 Status = TaskStatusEnum.Todo,
                 CreatedAt = DateTime.Now
             };
@@ -91,6 +94,7 @@ namespace ProjectManagement.BLL.Services
                 Description = createdTask.Description,
                 Status = createdTask.Status,
                 Priority = createdTask.Priority,
+                Deadline = createdTask.Deadline,
                 CreatedAt = createdTask.CreatedAt,
                 ProjectId = createdTask.ProjectId
             };
@@ -104,6 +108,7 @@ namespace ProjectManagement.BLL.Services
             task.Title = taskDto.Title;
             task.Description = taskDto.Description;
             task.Priority = taskDto.Priority;
+            task.Deadline = taskDto.Deadline;
             task.Status = taskDto.Status;
 
             await _taskRepository.UpdateAsync(task);

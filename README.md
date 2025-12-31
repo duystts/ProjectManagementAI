@@ -6,7 +6,7 @@
 
 - **API**: ASP.NET Core (.NET 10)
 - **Frontend**: Windows Forms (.NET 8)
-- **Database**: SQLite với Entity Framework Core
+- **Database**: SQL Server với Entity Framework Core
 - **Authentication**: JWT Bearer Token
 - **AI**: Google AI Embedding API
 
@@ -35,7 +35,10 @@ export GOOGLEAI__APIKEY=your_google_ai_api_key
 ```
 
 ### Database
-Database SQLite sẽ tự động tạo khi chạy lần đầu.
+Cấu hình connection string trong `appsettings.json` và chạy lệnh update database:
+```bash
+dotnet ef database update --project ProjectManagement.DAL --startup-project ProjectManagement.API
+```
 
 ## 🚀 Chạy ứng dụng
 
@@ -57,11 +60,16 @@ dotnet run
 - ✅ Đăng nhập/đăng ký người dùng
 - ✅ Quản lý projects (CRUD)
 - ✅ Quản lý tasks (Kanban board)
+- ✅ **Mới**: Thêm trạng thái "Pending Review" cho quy trình kiểm duyệt
+- ✅ **Mới**: Thiết lập Deadline cho tasks (có hiển thị giờ phút)
+- ✅ **Mới**: Cảnh báo visual (viền đỏ) cho tasks quá hạn
 - ✅ Quản lý người dùng (Admin)
 - ✅ Phân quyền theo role
 - ✅ JWT Authentication
 - ✅ **AI Search**: Tìm kiếm tasks thông minh
 - ✅ **AI Suggestions**: Gợi ý tasks liên quan
+- ✅ **Responsive UI**: Giao diện thích ứng với kích thước cửa sổ
+- ✅ **Modern UI**: Bo góc cards, layout linh hoạt
 
 ## 🤖 Tính năng AI
 
@@ -78,7 +86,7 @@ dotnet run
 
 ## 🔧 Công nghệ
 
-- .NET 8/10, EF Core, SQLite
+- .NET 8/10, EF Core, SQL Server
 - JWT, BCrypt
 - Windows Forms, System.Text.Json
 - Google AI Embedding API

@@ -39,11 +39,16 @@ namespace ProjectManagement.WinForms.Controls
             lblName.AutoSize = true;
             lblName.Font = new Font("Segoe UI", 12F, FontStyle.Bold);
             lblName.Location = new Point(10, 10);
-            lblName.MaximumSize = new Size(655, 0);
+            lblName.MaximumSize = new Size(655, 0); // Need to update this dynamically or rely on anchors with AutoSize=false
             lblName.Name = "lblName";
             lblName.Size = new Size(52, 21);
             lblName.TabIndex = 0;
             lblName.Text = "Name";
+            // lblName AutoSize is true, so anchors won't stretch it, but it will move. 
+            // Better to keep AutoSize=true and handle max width or just let it flow.
+            // If we want it to wrap, we usually need AutoSize=true + MaximumSize.Width.
+            // Since card width changes, MaximumSize.Width should change too.
+            // For now, let's just anchor the buttons to the right.
 
             
             // lblDescription
@@ -58,6 +63,7 @@ namespace ProjectManagement.WinForms.Controls
 
             
             // lblCreated
+            lblCreated.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
             lblCreated.AutoSize = true;
             lblCreated.Font = new Font("Segoe UI", 8F);
             lblCreated.ForeColor = Color.Gray;
@@ -68,6 +74,7 @@ namespace ProjectManagement.WinForms.Controls
             lblCreated.Text = "01/01/2024";
 
             // btnEdit
+            btnEdit.Anchor = AnchorStyles.Top | AnchorStyles.Right;
             btnEdit.Location = new Point(675, 10);
             btnEdit.Name = "btnEdit";
             btnEdit.Size = new Size(25, 25);
@@ -79,6 +86,7 @@ namespace ProjectManagement.WinForms.Controls
             btnEdit.UseVisualStyleBackColor = true;
             
             // btnDelete
+            btnDelete.Anchor = AnchorStyles.Top | AnchorStyles.Right;
             btnDelete.Location = new Point(675, 40);
             btnDelete.Name = "btnDelete";
             btnDelete.Size = new Size(25, 25);
