@@ -34,6 +34,7 @@ namespace ProjectManagement.WinForms
             txtSearch = new TextBox();
             btnSearch = new Button();
             flpProjects = new FlowLayoutPanel();
+            btnAIAssistant = new Button();
             SuspendLayout();
             // 
             // btnAddProject
@@ -61,19 +62,6 @@ namespace ProjectManagement.WinForms
             btnUserManager.Visible = false;
             btnUserManager.Click += btnUserManager_Click;
             // 
-            // btnAIAssistant
-            // 
-            btnAIAssistant = new Button();
-            btnAIAssistant.Font = new Font("Segoe UI", 10F, FontStyle.Bold);
-            btnAIAssistant.Location = new Point(374, 77);
-            btnAIAssistant.Margin = new Padding(3, 4, 3, 4);
-            btnAIAssistant.Name = "btnAIAssistant";
-            btnAIAssistant.Size = new Size(171, 47);
-            btnAIAssistant.TabIndex = 5;
-            btnAIAssistant.Text = "AI Assistant";
-            btnAIAssistant.UseVisualStyleBackColor = true;
-            btnAIAssistant.Click += btnAIAssistant_Click;
-            // 
             // btnChat
             // 
             btnChat.Font = new Font("Segoe UI", 10F, FontStyle.Bold);
@@ -92,7 +80,7 @@ namespace ProjectManagement.WinForms
             btnEmbedData.Location = new Point(664, 77);
             btnEmbedData.Margin = new Padding(3, 4, 3, 4);
             btnEmbedData.Name = "btnEmbedData";
-            btnEmbedData.Size = new Size(120, 47);
+            btnEmbedData.Size = new Size(161, 47);
             btnEmbedData.TabIndex = 7;
             btnEmbedData.Text = "🤖 Embed Data";
             btnEmbedData.UseVisualStyleBackColor = true;
@@ -100,6 +88,7 @@ namespace ProjectManagement.WinForms
             // 
             // btnLogout
             // 
+            btnLogout.Anchor = AnchorStyles.Top | AnchorStyles.Right;
             btnLogout.Font = new Font("Segoe UI", 9F);
             btnLogout.Location = new Point(711, 16);
             btnLogout.Margin = new Padding(3, 4, 3, 4);
@@ -148,6 +137,7 @@ namespace ProjectManagement.WinForms
             // 
             // flpProjects
             // 
+            flpProjects.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             flpProjects.AutoScroll = true;
             flpProjects.FlowDirection = FlowDirection.TopDown;
             flpProjects.Location = new Point(14, 190);
@@ -157,6 +147,18 @@ namespace ProjectManagement.WinForms
             flpProjects.TabIndex = 5;
             flpProjects.WrapContents = false;
             flpProjects.Click += flpProjects_Click;
+            // 
+            // btnAIAssistant
+            // 
+            btnAIAssistant.Font = new Font("Segoe UI", 10F, FontStyle.Bold);
+            btnAIAssistant.Location = new Point(374, 77);
+            btnAIAssistant.Margin = new Padding(3, 4, 3, 4);
+            btnAIAssistant.Name = "btnAIAssistant";
+            btnAIAssistant.Size = new Size(171, 47);
+            btnAIAssistant.TabIndex = 5;
+            btnAIAssistant.Text = "AI Assistant";
+            btnAIAssistant.UseVisualStyleBackColor = true;
+            btnAIAssistant.Click += btnAIAssistant_Click;
             // 
             // DashboardForm
             // 

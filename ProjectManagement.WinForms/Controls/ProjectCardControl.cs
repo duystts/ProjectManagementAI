@@ -2,6 +2,7 @@ using ProjectManagement.Entities.Models.DTOs;
 using ProjectManagement.Entities.Models.Enums;
 using ProjectManagement.WinForms.Services;
 using System.ComponentModel;
+using System.Drawing.Drawing2D;
 
 namespace ProjectManagement.WinForms.Controls
 {
@@ -12,6 +13,7 @@ namespace ProjectManagement.WinForms.Controls
         public event Action<int>? OnDeleteProject;
         
         private ProjectDto? _projectData;
+        private int _radius = 10;
         
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public ProjectDto? ProjectData
@@ -29,6 +31,10 @@ namespace ProjectManagement.WinForms.Controls
         {
             InitializeComponent();
             
+            // Remove default border style
+            this.BorderStyle = BorderStyle.None;
+            this.Padding = new Padding(5);
+
             // Đăng ký event click cho tất cả controls
             this.Click += ProjectCardControl_Click;
             lblName.Click += ProjectCardControl_Click;
@@ -40,6 +46,36 @@ namespace ProjectManagement.WinForms.Controls
             btnDelete.Click += BtnDelete_Click;
             
             ConfigureButtonsByRole();
+        }
+
+        protected override void OnPaint(PaintEventArgs e)
+        {
+            base.OnPaint(e);
+
+            e.Graphics.SmoothingMode = SmoothingMode.AntiAlias;
+
+            using (GraphicsPath path = GetRoundedPath(ClientRectangle, _radius))
+            {
+                this.Region = new Region(path);
+                using (Pen pen = new Pen(Color.Gray, 1))
+                {
+                    e.Graphics.DrawPath(pen, path);
+                }
+            }
+        }
+
+        private GraphicsPath GetRoundedPath(Rectangle rect, int radius)
+        {
+            GraphicsPath path = new GraphicsPath();
+            float curveSize = radius * 2F;
+
+            path.StartFigure();
+            path.AddArc(rect.X, rect.Y, curveSize, curveSize, 180, 90);
+            path.AddArc(rect.Right - curveSize, rect.Y, curveSize, curveSize, 270, 90);
+            path.AddArc(rect.Right - curveSize, rect.Bottom - curveSize, curveSize, curveSize, 0, 90);
+            path.AddArc(rect.X, rect.Bottom - curveSize, curveSize, curveSize, 90, 90);
+            path.CloseFigure();
+            return path;
         }
 
         private void ConfigureButtonsByRole()

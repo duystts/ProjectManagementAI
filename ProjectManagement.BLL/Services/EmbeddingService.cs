@@ -8,18 +8,20 @@ public class EmbeddingService
 {
     private readonly HttpClient _httpClient;
     private readonly string _apiKey;
+    private readonly string _model;
 
     public EmbeddingService(HttpClient httpClient, IConfiguration configuration)
     {
         _httpClient = httpClient;
         _apiKey = configuration["GoogleAI:ApiKey"] ?? throw new InvalidOperationException("Google AI API key not found");
+        _model = configuration["GoogleAI:EmbeddingModel"] ?? "text-embedding-004";
     }
 
     public async Task<EmbeddingResult> GetEmbeddingAsync(string text)
     {
         var request = new
         {
-            model = "models/text-embedding-004",
+            model = $"models/{_model}",
             content = new { parts = new[] { new { text } } }
         };
 
@@ -27,7 +29,7 @@ public class EmbeddingService
         var content = new StringContent(json, System.Text.Encoding.UTF8, "application/json");
         
         var response = await _httpClient.PostAsync(
-            $"https://generativelanguage.googleapis.com/v1/models/text-embedding-004:embedContent?key={_apiKey}",
+            $"https://generativelanguage.googleapis.com/v1beta/models/{_model}:embedContent?key={_apiKey}",
             content);
         
         if (!response.IsSuccessStatusCode)

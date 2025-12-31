@@ -28,7 +28,25 @@ namespace ProjectManagement.WinForms
         private async void Form1_Load(object sender, EventArgs e)
         {
             ConfigureUIByRole();
+            
+            // Register resize events for columns
+            flpTodo.Resize += (s, ev) => ResizeColumnItems(flpTodo);
+            flpProgress.Resize += (s, ev) => ResizeColumnItems(flpProgress);
+            flpPendingReview.Resize += (s, ev) => ResizeColumnItems(flpPendingReview);
+            flpDone.Resize += (s, ev) => ResizeColumnItems(flpDone);
+
             await LoadTasks();
+        }
+
+        private void ResizeColumnItems(FlowLayoutPanel panel)
+        {
+            foreach (Control control in panel.Controls)
+            {
+                if (control is TaskCardControl card)
+                {
+                    card.Width = panel.ClientSize.Width - 10; // Account for margin/scrollbar
+                }
+            }
         }
 
         private void ConfigureUIByRole()
@@ -57,6 +75,7 @@ namespace ProjectManagement.WinForms
                 // Clear existing controls
                 flpTodo.Controls.Clear();
                 flpProgress.Controls.Clear();
+                flpPendingReview.Controls.Clear();
                 flpDone.Controls.Clear();
 
                 foreach (var task in tasks)
@@ -72,12 +91,19 @@ namespace ProjectManagement.WinForms
                     switch (task.Status)
                     {
                         case TaskStatusEnum.Todo:
+                            taskCard.Width = flpTodo.ClientSize.Width - 10;
                             flpTodo.Controls.Add(taskCard);
                             break;
                         case TaskStatusEnum.InProgress:
+                            taskCard.Width = flpProgress.ClientSize.Width - 10;
                             flpProgress.Controls.Add(taskCard);
                             break;
+                        case TaskStatusEnum.PendingReview:
+                            taskCard.Width = flpPendingReview.ClientSize.Width - 10;
+                            flpPendingReview.Controls.Add(taskCard);
+                            break;
                         case TaskStatusEnum.Done:
+                            taskCard.Width = flpDone.ClientSize.Width - 10;
                             flpDone.Controls.Add(taskCard);
                             break;
                     }

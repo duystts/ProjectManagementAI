@@ -152,7 +152,8 @@ namespace ProjectManagement.WinForms.Services
                     ProjectId = task.ProjectId,
                     Title = task.Title,
                     Description = task.Description,
-                    Priority = task.Priority
+                    Priority = task.Priority,
+                    Deadline = task.Deadline
                 };
                 
                 var json = JsonSerializer.Serialize(request);
@@ -183,6 +184,7 @@ namespace ProjectManagement.WinForms.Services
                     Title = task.Title,
                     Description = task.Description,
                     Priority = task.Priority,
+                    Deadline = task.Deadline,
                     Status = task.Status
                 };
                 

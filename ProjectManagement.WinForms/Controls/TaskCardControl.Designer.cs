@@ -6,24 +6,17 @@ namespace ProjectManagement.WinForms.Controls
         private Label lblTitle;
         private Label lblPriority;
         private Label lblId;
+        private Label lblDeadline;
         private Button btnEdit;
         private Button btnDelete;
         private Button btnAssign;
-
-        protected override void Dispose(bool disposing)
-        {
-            if (disposing && (components != null))
-            {
-                components.Dispose();
-            }
-            base.Dispose(disposing);
-        }
 
         private void InitializeComponent()
         {
             lblTitle = new Label();
             lblPriority = new Label();
             lblId = new Label();
+            lblDeadline = new Label();
             btnEdit = new Button();
             btnDelete = new Button();
             btnAssign = new Button();
@@ -33,7 +26,7 @@ namespace ProjectManagement.WinForms.Controls
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             BackColor = Color.White;
-            BorderStyle = BorderStyle.FixedSingle;
+            // BorderStyle handled in OnPaint
             Size = new Size(260, 100);
             Click += TaskCardControl_Click;
             
@@ -41,7 +34,7 @@ namespace ProjectManagement.WinForms.Controls
             lblTitle.AutoSize = true;
             lblTitle.Font = new Font("Segoe UI", 10F, FontStyle.Bold);
             lblTitle.Location = new Point(8, 8);
-            lblTitle.MaximumSize = new Size(200, 0);
+            lblTitle.MaximumSize = new Size(180, 0); // Adjusted for priority label
             lblTitle.Name = "lblTitle";
             lblTitle.Size = new Size(38, 19);
             lblTitle.TabIndex = 0;
@@ -49,6 +42,7 @@ namespace ProjectManagement.WinForms.Controls
             lblTitle.Click += Label_Click;
             
             // lblPriority
+            lblPriority.Anchor = AnchorStyles.Top | AnchorStyles.Right;
             lblPriority.AutoSize = true;
             lblPriority.Font = new Font("Segoe UI", 8F, FontStyle.Bold);
             lblPriority.Location = new Point(200, 8);
@@ -59,6 +53,7 @@ namespace ProjectManagement.WinForms.Controls
             lblPriority.Click += Label_Click;
             
             // lblId
+            lblId.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
             lblId.AutoSize = true;
             lblId.Font = new Font("Segoe UI", 7F);
             lblId.ForeColor = Color.Gray;
@@ -68,8 +63,20 @@ namespace ProjectManagement.WinForms.Controls
             lblId.TabIndex = 2;
             lblId.Text = "#1";
             lblId.Click += Label_Click;
+
+            // lblDeadline
+            lblDeadline.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
+            lblDeadline.AutoSize = true;
+            lblDeadline.Font = new Font("Segoe UI", 7F);
+            lblDeadline.ForeColor = Color.Gray;
+            lblDeadline.Location = new Point(8, 60);
+            lblDeadline.Name = "lblDeadline";
+            lblDeadline.Size = new Size(0, 12);
+            lblDeadline.TabIndex = 6;
+            lblDeadline.Click += Label_Click;
             
             // btnEdit
+            btnEdit.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
             btnEdit.Location = new Point(120, 75);
             btnEdit.Name = "btnEdit";
             btnEdit.Size = new Size(35, 20);
@@ -79,6 +86,7 @@ namespace ProjectManagement.WinForms.Controls
             btnEdit.Click += BtnEdit_Click;
             
             // btnDelete
+            btnDelete.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
             btnDelete.Location = new Point(160, 75);
             btnDelete.Name = "btnDelete";
             btnDelete.Size = new Size(35, 20);
@@ -88,6 +96,7 @@ namespace ProjectManagement.WinForms.Controls
             btnDelete.Click += BtnDelete_Click;
             
             // btnAssign
+            btnAssign.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
             btnAssign.Location = new Point(200, 75);
             btnAssign.Name = "btnAssign";
             btnAssign.Size = new Size(45, 20);
@@ -99,6 +108,7 @@ namespace ProjectManagement.WinForms.Controls
             Controls.Add(lblTitle);
             Controls.Add(lblPriority);
             Controls.Add(lblId);
+            Controls.Add(lblDeadline);
             Controls.Add(btnEdit);
             Controls.Add(btnDelete);
             Controls.Add(btnAssign);

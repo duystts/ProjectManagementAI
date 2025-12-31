@@ -4,6 +4,7 @@ namespace ProjectManagement.Entities.Models.Enums
     {
         Todo,
         InProgress,
+        PendingReview,
         Done
     }
 }

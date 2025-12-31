@@ -23,7 +23,23 @@ namespace ProjectManagement.WinForms
         private async void DashboardForm_Load(object sender, EventArgs e)
         {
             ConfigureUIByRole();
+            flpProjects.Resize += FlpProjects_Resize;
             await LoadProjects();
+        }
+
+        private void FlpProjects_Resize(object? sender, EventArgs e)
+        {
+            foreach (Control control in flpProjects.Controls)
+            {
+                if (control is ProjectCardControl card)
+                {
+                    card.Width = flpProjects.ClientSize.Width - 25; // Account for scrollbar and margin
+                }
+                else if (control is Label lbl)
+                {
+                    lbl.Width = flpProjects.ClientSize.Width - 20;
+                }
+            }
         }
 
         private void ConfigureUIByRole()
@@ -90,6 +106,7 @@ namespace ProjectManagement.WinForms
                 projectCard.OnEditProject += (id) => EditProject(id);
                 projectCard.OnDeleteProject += (id) => DeleteProject(id);
                 projectCard.Margin = new Padding(5);
+                projectCard.Width = flpProjects.ClientSize.Width - 25; // Set initial width
                 flpProjects.Controls.Add(projectCard);
             }
             

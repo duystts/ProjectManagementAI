@@ -13,6 +13,7 @@ public class RagService
     private readonly EmbeddingService _embeddingService;
     private readonly HttpClient _httpClient;
     private readonly string _apiKey;
+    private readonly string _chatModel;
 
     public RagService(AppDbContext context, EmbeddingService embeddingService, HttpClient httpClient, IConfiguration configuration)
     {
@@ -20,6 +21,7 @@ public class RagService
         _embeddingService = embeddingService;
         _httpClient = httpClient;
         _apiKey = configuration["GoogleAI:ApiKey"] ?? throw new InvalidOperationException("Google AI API key not found");
+        _chatModel = configuration["GoogleAI:ChatModel"] ?? "gemini-1.5-flash";
     }
 
     public async Task<int> AddKnowledgeAsync(string title, string content, int? projectId = null, int? taskId = null)
@@ -115,7 +117,7 @@ public class RagService
         var content = new StringContent(json, System.Text.Encoding.UTF8, "application/json");
         
         var response = await _httpClient.PostAsync(
-            $"https://generativelanguage.googleapis.com/v1/models/gemini-2.5-flash:generateContent?key={_apiKey}",
+            $"https://generativelanguage.googleapis.com/v1beta/models/{_chatModel}:generateContent?key={_apiKey}",
             content);
         
         if (!response.IsSuccessStatusCode)
