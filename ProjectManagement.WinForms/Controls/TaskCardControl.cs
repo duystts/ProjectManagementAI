@@ -13,6 +13,7 @@ namespace ProjectManagement.WinForms.Controls
         public event Action<int>? OnDeleteTask;
         public event Action<int>? OnAssignTask;
         public event Action<int>? OnUnassignTask;
+        public event Action<int>? OnViewAttachments;
         
         private ProjectTaskDto? _taskData;
         private System.Windows.Forms.Timer? _deadlineTimer;
@@ -173,14 +174,38 @@ namespace ProjectManagement.WinForms.Controls
             // Show Deadline
             if (task.Deadline.HasValue)
             {
-                lblDeadline.Text = $"Due: {task.Deadline.Value:g}";
-                if (task.Deadline.Value < DateTime.Now && task.Status != TaskStatusEnum.Done)
+                var deadline = task.Deadline.Value;
+                var now = DateTime.Now;
+                
+                // Format deadline display
+                if (deadline.Date == now.Date)
+                {
+                    lblDeadline.Text = $"⏰ Today {deadline:HH:mm}";
+                }
+                else if (deadline.Date == now.Date.AddDays(1))
+                {
+                    lblDeadline.Text = $"⏰ Tomorrow {deadline:HH:mm}";
+                }
+                else
+                {
+                    lblDeadline.Text = $"⏰ {deadline:MM/dd HH:mm}";
+                }
+                
+                // Set color based on deadline status
+                if (deadline < now && task.Status != TaskStatusEnum.Done)
                 {
                     lblDeadline.ForeColor = Color.Red;
+                    lblDeadline.Font = new Font(lblDeadline.Font, FontStyle.Bold);
+                }
+                else if (deadline.Subtract(now).TotalHours <= 24 && task.Status != TaskStatusEnum.Done)
+                {
+                    lblDeadline.ForeColor = Color.Orange;
+                    lblDeadline.Font = new Font(lblDeadline.Font, FontStyle.Bold);
                 }
                 else
                 {
                     lblDeadline.ForeColor = Color.Gray;
+                    lblDeadline.Font = new Font(lblDeadline.Font, FontStyle.Regular);
                 }
             }
             else
@@ -210,11 +235,36 @@ namespace ProjectManagement.WinForms.Controls
                 }
             }
 
+            // Update attachments button with indicator
+            LoadAttachmentIndicator();
+
             // Add context menu for assign/unassign
             AddContextMenu();
             
             // Trigger repaint for border
             this.Invalidate();
+        }
+
+        private async void LoadAttachmentIndicator()
+        {
+            if (_taskData == null) return;
+            
+            try
+            {
+                // This would require ApiService to be injected, for now just show icon
+                btnAttachments.Text = "📎";
+                btnAttachments.BackColor = SystemColors.Control;
+            }
+            catch
+            {
+                btnAttachments.Text = "📎";
+            }
+        }
+
+        private void BtnAttachments_Click(object? sender, EventArgs e)
+        {
+            if (_taskData != null)
+                OnViewAttachments?.Invoke(_taskData.Id);
         }
 
         protected override void OnPaint(PaintEventArgs e)

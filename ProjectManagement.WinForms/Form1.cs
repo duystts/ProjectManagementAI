@@ -87,6 +87,7 @@ namespace ProjectManagement.WinForms
                     taskCard.OnDeleteTask += (id) => DeleteTask(id);
                     taskCard.OnAssignTask += (id) => AssignTask(id);
                     taskCard.OnUnassignTask += (id) => UnassignTask(id);
+                    taskCard.OnViewAttachments += (id) => ViewAttachments(id);
 
                     switch (task.Status)
                     {
@@ -291,6 +292,12 @@ namespace ProjectManagement.WinForms
             form.AcceptButton = btnOk;
 
             return form.ShowDialog() == DialogResult.OK ? listBox.SelectedIndex : -1;
+        }
+
+        private void ViewAttachments(int taskId)
+        {
+            var attachmentForm = new AttachmentForm(_apiService, taskId);
+            attachmentForm.ShowDialog();
         }
 
 
